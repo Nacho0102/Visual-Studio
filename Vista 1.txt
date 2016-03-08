@@ -1,11 +1,11 @@
-
+﻿
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Gesti&#243;n de Nodos - EOlimpiadas</title>
+    <title>Gesti&#243;Vista Ejemplo</title>
 
     <link href="/Content/bootstrap.min.css" rel="stylesheet">
     <link href="/Content/bootstrap-datetimepicker.min.css" rel="stylesheet">
@@ -103,7 +103,7 @@
 <div class="navbar-header">
     <a class="navbar-brand" href="#">
         <div class="logo-wrapper">             
-                <img src="/Content/images/imagesMasterPage/EOlimpiadas-logo-nav2.png" class="img-responsive" />
+                <img src="/Content/images/imagesMasterPage/logo-nav2.png" class="img-responsive" />
         </div>
     </a>
 
@@ -317,7 +317,7 @@
     <span class="span-margin-footer"></span>
 
     <footer>
-        <small>&copy; 2016 - EOlimpiadas</small>
+        <small>&copy; 2016 - </small>
 
         <a href="#" class="a-fa-footer">
             <div class="fa fa-bell fa-footer fa-2x"><p>1</p></div>
