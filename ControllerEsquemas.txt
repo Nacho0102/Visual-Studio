@@ -1,0 +1,652 @@
+using OLI2016MVC.Models;
+using OLI2016MVC.Models.BusinessLogic;
+using OLI2016MVC.Models.ViewModel;
+using PagedList;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Web.Mvc;
+
+
+namespace OLI2016MVC.Controllers
+{
+    public class EsquemasController : BaseController
+    {
+        VmEsquemasCreate VmEsquema = new VmEsquemasCreate();
+
+        //GET: /Esquemas/Create
+        /// <summary>
+        /// Método para gestionar la vista cuando se entra por Get
+        /// </summary>
+        /// <returns>La vista Gestor de Crear Esquemas</returns>
+        [HttpGet]
+        [ActionName("Create")]
+        public ActionResult Create(String mensaje)
+        {
+            VmEsquema.mensaje = mensaje;
+            return View("Gestor", VmEsquema);
+        }
+
+        //POST: /Esquemas/Create
+        /// <summary>
+        /// Método para gestionar el formulario de la vista Gestor de Esquemas
+        /// </summary>
+        /// <param name="vmModelo">ViewModel de la vista Gestor de Esquemas</param>
+        /// <returns>Envía al Action de Nodos</returns>
+        [HttpPost]
+        [ActionName("Create")]
+        public ActionResult Create_post(VmEsquemasCreate vmModelo)
+        {
+            bool insertado = false;
+            Esquema esquemaNuevo = new Esquema();
+
+            //Creación del nodo Raíz
+            Nodo nodoRaiz = new Nodo();
+            Usuario usuario = Usuario.FindByUserName(User.Identity.Name);
+            nodoRaiz.nombre = vmModelo.nombre;
+
+
+            //Creación del Esquema
+            esquemaNuevo.nombre = vmModelo.nombre;
+            esquemaNuevo.idNivelEscolar = vmModelo.idNivelEscolar;
+            esquemaNuevo.u_id = usuario.Id;
+            esquemaNuevo.descripcion = vmModelo.descripcion;
+            esquemaNuevo.fechaCreacion = DateTime.Now;
+            esquemaNuevo.Estado = OLI2016MVC.Enums.Estado.EnProceso;
+
+            if (ModelState.IsValid)
+            {
+                if (!BlEsquemas.ComprobarNombreUnicoEsquema(esquemaNuevo.nombre))
+                {
+                    insertado = BlEsquemas.CreateEsquema(esquemaNuevo, nodoRaiz);
+                }
+                else
+                {
+                    VmEsquema.mensaje += "El nombre de Esquema ya existe.";
+                };
+
+            }
+            else
+            {
+                VmEsquema.mensaje += "Fallo en la validación.";
+            }
+
+            if (insertado)
+            {
+                VmEsquemasGestorNodos vmCreateNodos = new VmEsquemasGestorNodos();
+                vmCreateNodos.idEsquema = esquemaNuevo.idEsquema;
+                return RedirectToAction("Nodos", new { esquemaNuevo.idEsquema });
+            }
+            else
+            {
+                VmEsquema.exito = insertado;
+                VmEsquema.mensaje += "Fallo al crear el Esquema.";
+                return View("Gestor", VmEsquema);
+            }
+        }
+
+        // GET: /Esquemas/Nodos
+        /// <summary>
+        /// Método para gestionar la vista de creación de nodos hijos
+        /// </summary>
+        /// <param name="idEsquema">ID del Esquema o Nodo padre</param>
+        /// <returns>Vista Gestor de Nodos</returns>
+        [Route("Esquemas/Edit/{idEsquema}/Nodos")]
+        [HttpGet]
+        [ActionName("Nodos")]
+        public ActionResult CreateNodos(int idEsquema)
+        {
+            VmEsquemasGestorNodos modeloGestorNodos = new VmEsquemasGestorNodos();
+            Esquema esquemaToEdit = Esquema.RecuperarEsquema(idEsquema);
+            modeloGestorNodos.idEsquema = idEsquema;
+            modeloGestorNodos.idNodoPadre = esquemaToEdit.idNodoRaiz;
+            modeloGestorNodos.nombre = esquemaToEdit.nombre;
+
+            return View("~/Views/Nodos/Gestor.cshtml", modeloGestorNodos);
+        }
+
+        //POST: /Esquemas/Nodos
+        /// <summary>
+        /// Método para crear nodos hijos del Esquema
+        /// </summary>
+        /// <param name="modeloGestor">Nodo (en Json) creado en la vista Gestor de Nodos</param>
+        /// <returns>El nodo creado en formato JSON</returns>
+        //[Route("Esquemas/Edit/{idEsquema}/Nodos")]
+        [HttpPost]
+        [ActionName("Nodos")]
+        public JsonResult CreateNodos_post(VmEsquemasGestorNodos modeloGestor)
+        {
+            string mensaje = "";
+
+            int idNodoPadreNH = (modeloGestor.idNodoPadreNH ?? 0);
+
+            if (ModelState.IsValid)
+            {
+                Nodo modelo = new Nodo();
+                modelo.nombre = modeloGestor.nombre;
+                if (idNodoPadreNH == 0)
+                {
+                    modelo.idNodoPadre = modeloGestor.idNodoPadre;
+                }
+                else
+                {
+                    modelo.idNodoPadre = idNodoPadreNH;
+                }
+
+                Usuario usuario = Usuario.FindByUserName(HttpContext.User.Identity.Name);
+
+                VmEsquemasGestorNodos VmNodos = new VmEsquemasGestorNodos();
+                bool creado = false;
+                if (!BlNodos.ComprobarNombreNodoUnico(modelo))
+                {
+                    BlNodos.CreateNodo(modelo);
+                    creado = true;
+                    mensaje = "El nodo se ha creado correctamente";
+                }
+                else
+                {
+                    mensaje = "El nombre del nodo a insertar ya existe";
+                }
+
+                if (!creado) { mensaje += "    " + "Fallo al crear el nodo"; }
+
+                var nodos = new
+                {
+                    ok = creado,
+                    id = modelo.idNodo,
+                    idPadre = modelo.idNodoPadre,
+                    nombre = modelo.nombre,
+                    hijos = BlNodos.TieneNodosHijos(modelo.idNodoPadre.Value),
+                    mensaje = mensaje
+                };
+                return Json(nodos);
+            }
+            else
+            {
+                var validationErrors = new
+                {
+                    mensaje = "Fallo en la validación"
+                };
+                return Json(validationErrors);
+            };
+        }
+
+        /// <summary>
+        /// Método para obtener los nodos hijos
+        /// </summary>
+        /// <param name="idNodoPadre">ID del nodo raiz o   nodo padre</param>
+        /// <returns>List de nodos hijos en formato JSON</returns>
+        [HttpPost]
+        public JsonResult ObtenerNodosHijos(int idNodoPadre)
+        {
+            var hijos = Nodo.ObtenerNodosHijos(idNodoPadre).Select(nodo => new
+            {
+                idNodo = nodo.idNodo,
+                hijos = Nodo.hijoTieneNodosHijos(nodo.idNodo),
+                nombre = nodo.nombre,
+                idNodoPadre = nodo.idNodoPadre,
+            }).ToList();
+
+            return Json(hijos);
+        }
+
+        [HttpPost]
+        public JsonResult TieneMaterialesAsociados(int idNodoHoja)
+        {
+            var materiales = Material.ObtenerMaterialesNodo(idNodoHoja).Select(nodo => new
+            {
+                nombre = Material.ObtenerNombreMaterial(nodo.idMaterial),
+                idMaterial = nodo.idMaterial,
+            }).ToList();
+            return Json(materiales);
+
+        }
+
+
+        /// <summary>
+        /// Método Get para entrar al Action modificar.
+        /// </summary>
+        /// <param name="idNodo">Id del nodo a modificar</param>
+        /// <returns>Vista Gestor para nodos</returns>
+        [HttpGet]
+        [ActionName("Edit_Nodo")]
+        public ActionResult Edit_Get(int idNodo)
+        {
+            Nodo nodoRecuperado = BlNodos.GetNodoById(idNodo);
+            VmEsquemasGestorNodos vmEditarNodo = new VmEsquemasGestorNodos();
+            vmEditarNodo.idNodoPadre = (int)nodoRecuperado.idNodoPadre;
+            vmEditarNodo.nombre = nodoRecuperado.nombre;
+            // TODO recuperar Id Esquema
+
+            return View("~/Views/Nodos/Gestor.cshtml", vmEditarNodo);
+        }
+
+        /// <summary>
+        /// Método para modificar un nodo
+        /// </summary>
+        /// <param name="modeloEdit">Datos del modelo de la vista para modificar el nodo</param>
+        /// <returns>Json con el resultado de la modificación</returns>
+        [HttpPost]
+        [ActionName("Edit_Nodo")]
+        public JsonResult Edit_post(VmEsquemasGestorNodos modeloEdit)
+        {
+            String mensaje = "";
+            Usuario usuario = Usuario.FindByUserName(HttpContext.User.Identity.Name);
+            //TODO: Enviar al BlEsquemas el nodo a modificar
+            Nodo nodoAModificar = new Nodo();
+            Esquema esquemaModificado = new Esquema();
+            nodoAModificar.nombre = modeloEdit.nombre;
+            nodoAModificar.idNodo = modeloEdit.idNodo;
+            nodoAModificar.idNodoPadre = modeloEdit.idNodoPadre;
+            esquemaModificado.u_id_mod = usuario.Id;
+            esquemaModificado.idEsquema = modeloEdit.idEsquema;
+            BlNodos.Resultvalidate rv = BlNodos.validateEdit(nodoAModificar, esquemaModificado);
+            bool modificado = false;
+
+            switch (rv)
+            {
+                case BlNodos.Resultvalidate.NombreVacio:
+                    mensaje += "El nombre no puede estar vacio.";
+                    break;
+                case BlNodos.Resultvalidate.Correcto:
+                    mensaje += "Nombre de Nodo modificado.";
+                    modificado = true;
+                    break;
+                case BlNodos.Resultvalidate.NombrenoUnico:
+                    mensaje += "El nombre del nodo ya existe.";
+                    break;
+                case BlNodos.Resultvalidate.DenegadoEsNodoRaiz:
+                    mensaje += "El Nodo seleccionado no se puede modificar.";
+                    break;
+                case BlNodos.Resultvalidate.ErrorPorDefecto:
+                    mensaje = "El nodo no se ha podido modificar.";
+                    break;
+                default:
+                    mensaje = "El nodo no se ha podido modificar.";
+                    break;
+            }
+
+            var nuevoNodo = new
+            {
+                ok = modificado,
+                id = nodoAModificar.idNodo,
+                idPadre = nodoAModificar.idNodoPadre,
+                nombre = nodoAModificar.nombre,
+                hijos = BlNodos.TieneNodosHijos(nodoAModificar.idNodoPadre.Value),
+                mensaje = mensaje
+            };
+            return Json(nuevoNodo);
+        }
+
+        /// <summary>
+        /// Método para eliminar un nodo.
+        /// </summary>
+        public JsonResult Delete(VmEsquemasGestorNodos modeloEliminar)
+        {
+            String mensaje = "";
+            Nodo nodoDeleted = BlNodos.GetNodoById(modeloEliminar.idNodo);
+            BlNodos.Resultvalidate rc = BlNodos.Delete(modeloEliminar.idNodo, modeloEliminar.idEsquema);
+            bool borrado = false;
+
+            switch (rc)
+            {
+                case BlNodos.Resultvalidate.Correcto:
+                    mensaje += "El nodo " + modeloEliminar.nombre + " ha sido eliminado.";
+                    borrado = true;
+                    break;
+                case BlNodos.Resultvalidate.DenegadoEsNodoRaiz:
+                    mensaje += "No esta permitido eliminar este nodo.";
+                    break;
+                case BlNodos.Resultvalidate.DenegadoNodoCompletado:
+                    mensaje += "Este esquema ya está completado.Debe estar en proceso para poder eliminar nodos.";
+                    break;
+                case BlNodos.Resultvalidate.DenegadoTieneHijos:
+                    mensaje += "No se puede eliminar un nodo con hijos. Debe estar vacio.";
+                    break;
+                case BlNodos.Resultvalidate.IncorrectoNoExiste:
+                    mensaje += "No existe el nodo que desea eliminar.";
+                    break;
+                case BlNodos.Resultvalidate.ErrorPorDefecto:
+                    mensaje = "No se ha podido eliminar el nodo " + modeloEliminar.nombre;
+                    break;
+                default:
+                    mensaje = "No se ha podido eliminar el nodo " + modeloEliminar.nombre;
+                    break;
+            }
+
+            var nodoEliminado = new
+            {
+                ok = borrado,
+                id = modeloEliminar.idNodo,
+                idPadre = nodoDeleted.idNodoPadre,
+                nombre = modeloEliminar.nombre,
+                mensaje = mensaje
+            };
+            return Json(nodoEliminado);
+        }
+
+        /// <summary>
+        /// Metodo get para buscar por los parametros indicados
+        /// </summary>
+        public ActionResult List(VmEsquemasList vmEsquemas, int primeraVez = 0)
+        {
+            // Controlamos que sea la primera vez para no mostrar resultados
+            if (primeraVez > 0)
+            {
+                if (vmEsquemas.page < 1)
+                {
+                    vmEsquemas.page = 1;
+                }
+                List<Esquema> lista = Esquema.Buscar(vmEsquemas);
+
+                vmEsquemas.resultadosTotales = lista.Count();
+                vmEsquemas.listaEsquemas = lista.ToPagedList(vmEsquemas.page, vmEsquemas.pageSize);
+                vmEsquemas.primeraVez = 1;
+                return View(vmEsquemas);
+            }
+            else
+            {
+                // Si no es la primera vez, hacemos la búsqueda
+                vmEsquemas.primeraVez = 1;
+                return View(vmEsquemas);
+            }
+        }
+
+        /// <summary>
+        /// Método que muestra los detalles a partir de una id de esquema
+        /// </summary>
+        [HttpGet]
+        [ActionName("Details")]
+        public ActionResult Details(int id)
+        {
+            Esquema esquemaBuscado = new Esquema();
+            esquemaBuscado = Esquema.RecuperarEsquema(id);
+            return PartialView("_PartialDetails", esquemaBuscado);
+        }
+
+        /// <summary>
+        /// Método para comprobar si el nombre de nodo ya existe en BD
+        /// </summary>
+        /// <param name="nodoAComprobar">Nodo que se va a comprobar</param>
+        /// <returns>Json con el resultado de la comprobación True o False</returns>
+        public JsonResult ComprobarNombreUnico(VmEsquemasGestorNodos nodoRecibido)
+        {
+            Nodo nodoAComprobar = new Nodo();
+            int idNodoPadreNH = (nodoRecibido.idNodoPadreNH ?? 0);
+            if ((nodoRecibido.idNodo - idNodoPadreNH) == 0)
+            {
+                // Cuando se va a editar
+                nodoAComprobar.idNodoPadre = nodoRecibido.idNodoPadre;
+                nodoAComprobar.nombre = nodoRecibido.nombre;
+            }
+            else
+            {
+                // Cuando se va a crear
+                nodoAComprobar.idNodoPadre = idNodoPadreNH;
+                nodoAComprobar.nombre = nodoRecibido.nombre;
+            }
+            var existe = new
+            {
+                existe = BlNodos.ComprobarNombreNodoUnico(nodoAComprobar)
+            };
+            return Json(existe);
+        }
+
+        /// <summary>
+        /// Método para mover un nodo hijo de padre
+        /// </summary>
+        /// <param name="idNodo">Id del nodo a mover</param>
+        /// <param name="idNuevoPadre">Id del nuevo nodo padre</param>
+        /// <returns>Json con el resultado del método</returns>
+        [HttpPost]
+        public JsonResult MoveNodos(VmEsquemasGestorNodos modeloMove)
+        {
+            string mensaje = "";
+            int idNodoDestino = (modeloMove.idNodoToChange ?? 0);
+            if (modeloMove.idNodoToChange == 0)
+            {
+                int idPadreTemp = (modeloMove.idNodoPadreChange ?? 0);
+                idNodoDestino = idPadreTemp;
+            }
+            BlNodos.Resultvalidate resultado = BlNodos.MoveNodo(modeloMove.idNodo, idNodoDestino);
+            bool movido = false;
+            Nodo nodo = new Nodo();
+
+            switch (resultado)
+            {
+                case BlNodos.Resultvalidate.DenegadoEsNodoHijo:
+                    mensaje += "No se puede mover el nodo a esa localización.";
+                    break;
+                case BlNodos.Resultvalidate.DenegadoEsNodoRaiz:
+                    mensaje += "No se puede mover el nodo principal.";
+                    break;
+                case BlNodos.Resultvalidate.DenegadoTienePruebasAsignadas:
+                    mensaje += "No se puede mover un nodo con pruebas asignadas.";
+                    break;
+                case BlNodos.Resultvalidate.Correcto:
+                    nodo = BlNodos.GetNodoById(modeloMove.idNodo);
+                    mensaje += "El nodo " + nodo.nombre + " se ha movido correctamente.";
+                    movido = true;
+                    break;
+                case BlNodos.Resultvalidate.ErrorPorDefecto:
+                    mensaje = "No se ha podido mover el nodo.";
+                    break;
+                default:
+                    mensaje = "No se ha podido mover el nodo.";
+                    break;
+            }
+
+            var nodoMovido = new
+            {
+                ok = movido,
+                id = nodo.idNodo,
+                idPadre = nodo.idNodoPadre,
+                nombre = nodo.nombre,
+                hijos = Nodo.hijoTieneNodosHijos(nodo.idNodo),
+                mensaje = mensaje
+            };
+            return Json(nodoMovido);
+        }
+
+        /// <summary>
+        /// Método para averiguar si un nodo dado tiene hijas o no, delega en la capa de acceso a datos class Nodos
+        /// </summary>
+        /// <param name="idNodoPadre">El identificador del nodo  que se quiere saber si tiene hijas</param>
+        /// <returns>Un valor booleano</returns>
+        [HttpPost]
+        public JsonResult TieneNodosHijos(int idNodoPadre)
+        {
+            bool tieneHijos = Nodo.TieneNodosHijos(idNodoPadre);
+
+            var response = new
+            {
+                hijos = tieneHijos
+            };
+
+            return Json(response);
+        }
+
+
+
+        /// <summary>
+        /// Action para cargar la vista de edición de esquemas
+        /// </summary>
+        /// <param name="id">id del esquema a editar</param>
+        /// <param name="mensaje">String con el mensaje de resultado de la operación</param>
+        /// <returns></returns>
+        [ActionName("Edit")]
+        public ViewResult Edit_Esquemas(int id, string mensaje)
+        {
+            Esquema esquemaToEdit = Esquema.RecuperarEsquema(id);
+            VmEsquemasCreate modelo = new VmEsquemasCreate();
+
+            if (mensaje != null)
+            {
+                modelo.mensaje = mensaje;
+            }
+            modelo.idNivelEscolar = esquemaToEdit.idNivelEscolar;
+            modelo.nombre = esquemaToEdit.nombre;
+            modelo.descripcion = esquemaToEdit.descripcion;
+            modelo.Estado = esquemaToEdit.Estado;
+            modelo.exito = true;
+
+            return View("Gestor", modelo);
+        }
+
+        /// <summary>
+        /// Action del método post de edición de esquemas
+        /// </summary>
+        /// <param name="vmModelo">View Model de la vista Gestor</param>
+        /// <returns>Json con el resultado de la operación</returns>
+        [ActionName("Edit")]
+        [HttpPost]
+        public ActionResult Edit_Esquemas(VmEsquemasCreate vmModelo)
+        {
+            BlEsquemas.ResultsEnum rsEdit;
+            bool exito = false;
+            String mensaje = "";
+            Esquema esquemaToEdit = new Esquema();
+            Usuario usuario = Usuario.FindByUserName(HttpContext.User.Identity.Name);
+            int id = (vmModelo.id ?? 0);
+
+            esquemaToEdit.idEsquema = id;
+            esquemaToEdit.idNivelEscolar = vmModelo.idNivelEscolar;
+            esquemaToEdit.nombre = vmModelo.nombre;
+            esquemaToEdit.descripcion = vmModelo.descripcion;
+            esquemaToEdit.u_id_mod = usuario.Id;
+            rsEdit = BlEsquemas.EditarEsquema(esquemaToEdit);
+
+            switch (rsEdit)
+            {
+                case BlEsquemas.ResultsEnum.IncorrectoNoExiste:
+                    mensaje = "No se pudo modificar el esquema. Id errónea.";
+                    break;
+                case BlEsquemas.ResultsEnum.Correcto:
+                    mensaje = "Esquema modificado correctamente";
+                    exito = true;
+                    break;
+                case BlEsquemas.ResultsEnum.ErrorPorDefecto:
+                    mensaje = "No se puedo modificar el esquema.";
+                    break;
+                default:
+                    mensaje = "No se puedo modificar el esquema.";
+                    break;
+            }
+
+            var respuestaJson = new
+            {
+                exito = exito,
+                idEsquema = esquemaToEdit.idEsquema,
+                nombre = esquemaToEdit.nombre,
+                descripcion = esquemaToEdit.descripcion,
+                idNivelEscolar = esquemaToEdit.idNivelEscolar,
+                estado = esquemaToEdit.Estado,
+
+                mensaje = mensaje
+            };
+            return Json(respuestaJson);
+        }
+
+        /// <summary>
+        /// Action para gestionar la eliminación de un esquema
+        /// </summary>
+        /// <param name="idEsquema">id del esquema a eliminar</param>
+        /// <returns>Json con resultado de la operación</returns>
+        public ActionResult EsquemaDelete(int idEsquema)
+        {
+            String mensaje = "";
+            bool eliminado = false;
+            VmEsquemasCreate modeloToEliminar = new VmEsquemasCreate();
+            BlEsquemas.ResultsEnum rsEliminado = BlEsquemas.EliminarEsquema(idEsquema);
+            switch (rsEliminado)
+            {
+                case BlEsquemas.ResultsEnum.Correcto:
+                    mensaje += "Esquema eliminado correctamente.";
+                    eliminado = true;
+                    break;
+                case BlEsquemas.ResultsEnum.IncorrectoNoExiste:
+                    mensaje += "El esquema que quiere eliminar no existe.";
+                    break;
+                case BlEsquemas.ResultsEnum.ErrorPorDefecto:
+                    mensaje += "El Esquema no se ha podido eliminar.";
+                    break;
+                default:
+                    mensaje += "El Esquema no se ha podido eliminar.";
+                    break;
+            }
+
+            var respuestaJson = new
+            {
+                ok = eliminado,
+                mensaje = mensaje
+            };
+            return Json(respuestaJson, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Action que envía los datos que necesita la modal de confirmación de eliminar.
+        /// </summary>
+        /// <param name="idEsquema">id del esquema asociado</param>
+        /// <returns>Json con los datos necesarios</returns>
+        public JsonResult EsquemaModal(int idEsquema)
+        {
+            Esquema esquema = Esquema.RecuperarEsquema(idEsquema);
+            var respuestaJson = new
+            {
+                ok = true,
+                id = esquema.idEsquema,
+                nombre = esquema.nombre,
+                // Modificado por cambio de esquemas a cursos
+                //cursos = esquema.idCurso
+            };
+            return Json(respuestaJson, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Action para la clonación de un esquema
+        /// </summary>
+        /// <param name="id">id del esquema original</param>
+        /// <returns>Devuelve a la vista de Edición si es correcto o a la de Crear si es erróneo</returns>
+        public ActionResult ClonarEsquema(int id)
+        {
+            Esquema esquema = Esquema.RecuperarEsquema(id);
+
+            if (esquema.Estado == Enums.Estado.Completado)
+            {
+                string mensaje = "No se puede clonar un esquema Completado.Por favor, cambie el estado a En Proceso.";
+                return RedirectToAction("Edit", new { id = id, mensaje = mensaje });
+            }
+
+            Esquema esquemaClonado = BlEsquemas.ClonarEsquema(id, UsuarioLogueado.Id);
+
+            if (esquemaClonado.idEsquema != 0)
+            {
+                string mensaje = "Esquema clonado correctamente.";
+                return RedirectToAction("Edit", new { id = esquemaClonado.idEsquema, mensaje = mensaje });
+            }
+
+            var vm = new VmEsquemasCreate()
+            {
+                mensaje = "Hubo un problema al clonar el esquema."
+            };
+
+            return View("Gestor", vm);
+        }
+
+
+      
+        /// Action para asignar materiales a un nodo
+        [HttpPost]
+        public ActionResult AsignarMaterialesNodo(int[] values_chequeados, int iNodoSeleccionado)
+        {
+            var resultado = new JsonResult();
+            Material.InsertarMaterialesNodos(values_chequeados, iNodoSeleccionado);
+            resultado.Data = true;
+
+            return resultado;
+        }
+
+
+    }
+}

@@ -1,0 +1,1458 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gesti&#243;n de Nodos - EOlimpiadas</title>
+
+    <link href="/Content/bootstrap.min.css" rel="stylesheet">
+    <link href="/Content/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <link href="/Content/reset.css" rel="stylesheet">
+    <link href="/Content/animate.css" rel="stylesheet" media="screen">
+    <link href="/Content/font-awesome.min.css" rel="stylesheet">
+    <link href="/Content/maquetacion.css" rel="stylesheet">
+    <link href="/Content/Buscador.css" rel="stylesheet">
+    <link href="/Content/MasterPage/MasterPage.css" rel="stylesheet">
+    <link href="/Content/css/formulario.css" rel="stylesheet" />
+    <link href="/Content/css/tablaFormulario.css" rel="stylesheet" />
+    <link href="/Content/css/general.css" rel="stylesheet" />
+    <link href="/Content/css/mapas.css" rel="stylesheet" />
+    <link href="/Content/css/estiloTreeView.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+
+    
+</head>
+
+<body>
+
+    <header>
+        <div class="container-fluid header-logo">
+            <div class="dropdown dropdown-float" id="dropdownMenu0">
+    <button type="button"
+            class="buttonUser btn btn-default dropdown-toggle"
+            id="dropdownMenu1"
+            data-toggle="dropdown"></button>
+
+    <ul class="miDropdown-menu pull-right align-menu">
+        <li class="noHover">
+            <a href="#" class="up-dropdown">
+                <img class="icons-navUser" src="/Content/iconos/capicon/png/black/163.png">
+                <span class="up-dropdown">Nombre: admin</span>
+            </a>
+        </li>
+        <li class="noHover">
+            <a href="#" class="up-dropdown">
+                <img class="icons-navUser" src="/Content/iconos/capicon/png/black/296.png">
+                <span class="up-dropdown">Perfil: Autor</span>
+            </a>
+        </li>
+
+
+        <li role="separator" class="divider"></li>
+
+        <li class="hvr-icon-cog">
+            <a href="#" class="down-dropdown">
+                <img class="icons-navUser" src="/Content/iconos/capicon/png/black/006.png">
+                Configurar Perfil
+            </a>
+        </li>
+
+        <li class="hvr-icon-sel-perfil" id="profileLiSelector">
+            <a href="#" class="down-dropdown" id="profileSelection">
+                <img class="icons-navUser icon-flecha" src="/Content/iconos/capicon/png/black/376.png">
+                Seleccionar Perfil
+            </a>
+
+                <ul id="profilesList">
+                    <li role="separator" class="divider"></li>
+                            <li class="profileListElements">
+                                <a href="/Usuarios/CambiarPerfilenMEnu?idPerfil=1">Administrador</a>
+                            </li>
+                            <li class="profileListElements">
+                                <a href="/Usuarios/CambiarPerfilenMEnu?idPerfil=3">Gestor Comercial</a>
+                            </li>
+                            <li class="profileListElements">
+                                <a href="/Usuarios/CambiarPerfilenMEnu?idPerfil=4">Secretaria</a>
+                            </li>
+                            <li class="profileListElements">
+                                <a href="/Usuarios/CambiarPerfilenMEnu?idPerfil=5">Moderador</a>
+                            </li>
+                            <li class="profileListElements">
+                                <a href="/Usuarios/CambiarPerfilenMEnu?idPerfil=6">Alumno</a>
+                            </li>
+                            <li class="profileListElements">
+                                <a href="/Usuarios/CambiarPerfilenMEnu?idPerfil=7">Padres</a>
+                            </li>
+                </ul>
+        </li>
+
+        <li role="separator" class="divider"></li>
+
+        <li class="hvr-icon-cerrar">
+            <a id="CerrarSesion" class="down-dropdown" href="/Usuarios/Logout">
+                <img class="icons-navUser" src="/Content/iconos/capicon/png/black/057.png">
+                Cerrar sesión
+            </a>
+        </li>
+    </ul>
+</div>
+            
+<!-- MENU HEADER-->
+<div class="navbar-header">
+    <a class="navbar-brand" href="#">
+        <div class="logo-wrapper">             
+                <img src="/Content/images/imagesMasterPage/EOlimpiadas-logo-nav2.png" class="img-responsive" />
+        </div>
+    </a>
+
+     <h2 class="navbar-text text-header"> Lengua y Literatura</h2>
+ 
+        <!-- MENU DE TAREAS botón small-device -->
+
+    </div>
+
+<!-- MENU DE TAREAS - solo carga si ALUMNO, MODERADOR Y PADRE-->
+
+        </div>
+    </header>
+
+    <div id="notificaciones">
+
+
+
+</div>
+
+    
+
+<div class="row">
+    <!--Inicio del área de mensaje de error o éxito-->
+    <div class="col-md-4" style="position:absolute; margin-left:32%">
+    </div>
+
+    <div class="col-md-4" style="position:absolute; margin-left:32%">
+        <div class="alert-danger alert" role="alert" id="errores" style="text-align:center" hidden>
+
+        </div>
+
+        <div class="alert-success alert" role="alert" id="mensajes" style="text-align:center" hidden>
+
+        </div>
+    </div>
+    <!--Fin del área de mensaje de error o éxito-->
+
+    <div class="col-md-4">
+
+        <!--Tree View de nodos-->
+        <!--Aquí se agregará dinámicamente el Nodo Raíz con sus hijos-->
+        <div class="col-md-12 contentTree">
+
+            <h4 style="font-weight:bold">Nodos</h4>
+
+            <div id="treeview-nodos" class="content" style="margin-left:5%">
+
+            </div>
+        </div>
+        <!--Tree View de nodos-->
+
+        <div class="col-md-12" style="margin-top:10%; margin-left:5%">
+
+            <!--Comienzo panel de nodos-->
+            <div class="panel panel-default">
+                <div class="panel-heading" id="panel-heading">Gestión de nodos</div>
+                <div class="panel-body">
+
+                    <div id="prueba-variable" hidden></div>
+
+                    <!--Comienzo de Formulario de nodos-->
+                    <form class="form-inline" id="create-form" method="post" action="/Esquemas/CreateNodo">
+                        <div class="form-group col-md-12">
+
+                            <!--TextBox Hidden-->
+                            <!--Datos que se usan para crear editar o mover nodos-->
+
+                            <!--Id del esquema-->
+                            <div id="create-form-id-esquema" hidden>
+                                <input class="text-box single-line" data-val="true" data-val-number="The field idEsquema must be a number." data-val-required="El campo idEsquema es obligatorio." id="idEsquema" name="idEsquema" type="number" value="79" />
+                            </div>
+
+                            <!--Id del nodo padre-->
+                            <div id="create-form-id-padre" hidden>
+                                ID PADRE  <input class="text-box single-line" data-val="true" data-val-number="The field idNodoPadre must be a number." data-val-required="El campo idNodoPadre es obligatorio." id="idNodoPadre" name="idNodoPadre" type="number" value="871" />
+                            </div>
+
+                            <!--Id del nodo -->
+                            <div id="create-form-id-nodo" hidden>
+                                ID NODO  <input class="text-box single-line" data-val="true" data-val-number="The field idNodo must be a number." data-val-required="El campo idNodo es obligatorio." id="idNodo" name="idNodo" type="number" value="0" />
+                            </div>
+
+                            <!--Id para darle ese valor al id padre de un hijo-->
+                            <div id="create-form-id-for-create-son" hidden>
+                                ID NODO TO CREATE SON  <input class="form-control" type="text" id="create-form-id-nodo-create-son" name="idNodoPadreNH" />
+                            </div>
+
+                            <!--Nodo Seleccionado-->
+                            <div id="form-nodo-padre">
+                                <div class="col-md-4">
+                                    <label for="create-form-nodo" style="" id="name-nodo-raiz">Nodo Seleccionado</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div id="nodo-raiz" style="width: 100%">
+                                        <input class="form-control" data-val="true" data-val-regex="El nombre solo puede contener letras, números o espacios" data-val-regex-pattern="^[\wÑñáÁéÉíÍóÓúÚªº\s]{1,100}$" data-val-required="El nombre no puede estar vacio" disabled="true" id="nombre" name="nombre" readonly="readonly" type="text" value="22" />
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Nodo Seleccionado-->
+
+                            <!--Creación de nodos hijos-->
+                            <div id="form-nodo-hijo" style="float: left; margin-top: 5%" hidden>
+                                <div class="col-md-4">
+                                    <label for="create-form-nodo-hijo" style="" id="name-nodo-hijo">Nombre Nodo</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div id="nodo-hijo" style="width: 100%">
+                                        <input class="form-control" type="text" id="create-form-nodo-hijo" name="nombre" />
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Creación de nodos hijos-->
+
+                            <!--Cambiar nodo-->
+                            <div id="form-cambiar-nodo" style="float: left; margin-top: 5%" hidden>
+                                <!--Id para cambiar nodo-->
+                                <div id="div-id-nodo-change" hidden>
+                                    ID NODO TO CHANGE  <input class="form-control" type="text" id="id-nodo-change" name="idNodoToChange" />
+                                </div>
+
+                                <!--Id PADRE para cambiar nodo-->
+                                <div id="div-idpadre-nodo-change" hidden>
+                                    ID PADRE NODO TO CHANGE  <input class="form-control" type="text" id="idpadre-nodo-change" name="idNodoPadreChange" />
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="create-form-change-nodo" style="" id="name-nodo-to-change">Nueva Ubicación</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div id="create-form-change-nodo" style="width: 100%">
+                                        <input class="form-control" type="text" id="name-nodo-change" name="nombreNodoChange" disabled readonly placeholder="Escoger un nodo destino"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Cambiar nodo-->
+
+                        </div>
+
+                        <!--Botones del formulario nodo seleccionado-->
+                        <div id="btn-padre" style="margin-left:13%;">
+                            <button id="form-button-new-son" class="btn btn-default" type="button" style="margin-top:10%">Nuevo</button>
+                            <button id="form-button-edit-nodo" class="btn btn-default" type="button" style="margin-top:10%">Editar</button>
+                            <button id="form-button-delete-nodo" class="btn btn-default" type="button" style="margin-top:10%">Eliminar</button>
+                            <button id="form-button-clone-nodo" class="btn btn-default" type="button" style="margin-top:10%">Clonar</button>
+                        </div>
+                        <!--Fin botones del formulario nodo seleccionado-->
+
+                        <!--Botones del formulario creación de nodos-->
+                        <div id="btn-hijos" style="margin-left:27%;" hidden>
+                            <button id="form-button-save-new-son" class="btn btn-default" type="button" style="margin-top:10%">Guardar</button>
+                            <button id="form-button-cancel-son" class="btn btn-default" type="button" style="margin-top:10%">Cancelar</button>
+                        </div>
+                        <!--Fin botones del formulario creación de nodos-->
+
+                        <!--Botones del formulario modificar nodo-->
+                        <div id="btns-editar" style="margin-left:10%; position:inherit;" hidden>
+                            <button id="form-button-modify" class="btn btn-default" type="button" style="margin-top:10%">Modificar</button>
+                            <button id="form-button-change-nodo" class="btn btn-default" type="button" style="margin-top:10%">Cambiar Ubicación</button>
+                            <button id="form-button-cancel-editar" class="btn btn-default" type="button" style="margin-top:10%">Cancelar</button>
+                        </div>
+                        <!--Fin botones del formulario modificar nodo-->
+
+                        <!--Botones del formulario cambiar nodo-->
+                        <div id="btns-cambiar" style="margin-left:27%;" hidden>
+                            <button id="form-button-nodo-change" class="btn btn-default" type="button" style="margin-top:10%">Cambiar</button>
+                            <button id="form-button-cancel-change" class="btn btn-default" type="button" style="margin-top:10%">Cancelar</button>
+                        </div>
+                        <!--Fin botones del formulario cambiar nodo-->
+
+                    </form>
+                    <!--Fin de Formulario de nodos-->
+                </div>
+            </div>
+            <!--Fin panel de nodos-->
+
+        </div>
+
+
+    </div>
+
+</div>
+
+<!--Inicio Modal de confirmación al eliminar-->
+<div class="modal fade" id="confirmacion" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align:center">
+                <h4>Confirmación</h4>
+            </div>
+            <div class="modal-body" style="text-align:center">
+                <h3 id="mensaje-modal"> <!--Aquí va el mensaje del modal añadido dinámicamente--> </h3>
+                <h3>¿Está Seguro?</h3>
+                <!--Botones de la Modal-->
+                <button id="aceptarEliminar" class="btn">Si</button>
+                <button id="cancelarEliminar" data-dismiss="modal" class="btn">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin Modal de confirmación al eliminar-->
+
+
+
+
+
+    <div id="messages">
+
+    </div>
+
+    <span class="span-margin-footer"></span>
+
+    <footer>
+        <small>&copy; 2016 - EOlimpiadas</small>
+
+        <a href="#" class="a-fa-footer">
+            <div class="fa fa-bell fa-footer fa-2x"><p>1</p></div>
+        </a>
+    </footer>
+
+    <script src="/Scripts/jquery-1.10.2.js"></script>
+<script src="/Scripts/jquery-2.1.4.js"></script>
+
+    <script src="/Scripts/bootstrap.js"></script>
+
+    <script src="/Scripts/jquery.validate.js"></script>
+<script src="/Scripts/jquery.validate.unobtrusive.js"></script>
+
+    <script src="/Scripts/moment.js"></script>
+    <script src="/Scripts/bootstrap-datetimepicker.js"></script>
+    <script src="/Scripts/snap.svg-min.js"></script>
+    <script src="/Scripts/jquery.unobtrusive-ajax.js"></script>
+    <script src="/Scripts/es.js"></script>
+
+    <script src="/Scripts/jquery.signalR-2.2.0.js"></script>
+    <script src="/signalr/hubs"></script>
+
+    <script src="/Scripts/js/archivos.js"></script>
+<script src="/Scripts/js/buscador-archivos.js"></script>
+<script src="/Scripts/js/buscadorCursos.js"></script>
+<script src="/Scripts/js/fileupload-uix.js"></script>
+<script src="/Scripts/js/formulario.js"></script>
+<script src="/Scripts/js/general.js"></script>
+<script src="/Scripts/js/input-animated.js"></script>
+<script src="/Scripts/js/jquery.treeViewCategorias.js"></script>
+<script src="/Scripts/js/jquery.treeViewCursos.js"></script>
+<script src="/Scripts/js/login.js"></script>
+<script src="/Scripts/js/mapas.js"></script>
+<script src="/Scripts/js/maquetacion.js"></script>
+<script src="/Scripts/js/mensajeAlerta.js"></script>
+<script src="/Scripts/js/menu.js"></script>
+<script src="/Scripts/js/treeView.js"></script>
+<script src="/Scripts/js/validaciones.js"></script>
+
+
+    
+    <script>
+
+        var dataID = $("data-id").val();
+        // Crea el primer nodo hijo agregando la <ul>
+        var crearNodoFirstChild = function (nodoRecibido) {
+            var nodoRaiz = $("<ul></ul>");
+
+            //Para cada nodo recibido
+            $.each(nodoRecibido, function (i, nodo) {
+                //elemento li para ese nodo
+                var li = $("<li class='imChildren'></li>");
+
+                //elemento a para ese nodo
+                var nodoLink = $("<a></a>");
+
+                //le damos los valores al enlace que se va a mostar
+                nodoLink.text(nodo.nombre);
+                nodoLink.attr("href", "#");
+                nodoLink.addClass("nod-link");
+                nodoLink.data("id", nodo.id);
+                li.append(nodoLink);
+
+                //le damos los valores al la lista
+                li.data("id", nodo.id);
+                li.data("nombre", nodo.nombre);
+                li.data("idPadre", nodo.idPadre);
+
+                nodoRaiz.data("id", nodo.idPadre)
+                nodoRaiz.append(li);
+            });
+
+            return nodoRaiz;
+        };
+
+
+        // Crea un nodo raíz ("PADRE") <ul> a partir de un nodo recibido.
+        var crearNodoPadre = function (nodoRecibido) {
+
+            var nodoRaiz = $("<ul class='listaPrincipalTree animated'></ul>");
+
+            var li = $("<li class='has-children'></li>");
+
+            var nodoLink = $("<a></a>");
+
+            //Asignamos las propiedades que va a tener ese nodo
+            nodoLink.text(nodoRecibido.nombre);
+            nodoLink.attr("href", "#");
+            nodoLink.addClass("nod-link");
+            nodoLink.data("id", nodoRecibido.idNodo);
+            li.append(nodoLink);
+
+            li.data("nombre", nodoRecibido.nombre);
+            li.data("id", nodoRecibido.idNodo);
+            li.data("idNodoPadre", nodoRecibido.idNodoPadre);
+
+            nodoRaiz.append(li);
+
+            return nodoRaiz;
+        };
+
+
+        //Crea los nodos del TreeView
+        var crearNodosForTreeView = function (nodoRecibido) {
+
+            //ul para meter todos los nodos
+            var nodoRaiz = $("<ul></ul>");
+
+            //para cada nodo recibido
+            $.each(nodoRecibido, function (i, nodo) {
+                var li = $("<li></li>");
+
+                var nodoLink = $("<a></a>");
+
+                nodoLink.text(nodo.nombre);
+                nodoLink.attr("href", "#");
+                nodoLink.addClass("nod-link");
+                nodoLink.data("id", nodo.idNodo);
+                li.append(nodoLink);
+
+                li.data("id", nodo.idNodo);
+                li.data("nombre", nodo.nombre);
+                li.data("idPadre", nodo.idNodoPadre);
+
+                if (nodo.hijos === true) {
+                    var navLink = $("<a></a>");
+                    navLink.html("<span class=\"flecha\"></span>");
+                    navLink.attr("href", "#");
+                    navLink.addClass("nav-link");
+                    navLink.addClass("has-children");
+
+                    navLink.data("id", nodo.idNodo);
+                    li.prepend(navLink);
+                    li.addClass("has-children");
+                    li.addClass("imChildren")
+
+                }
+
+                li.addClass("imChildren");
+                nodoRaiz.data("id", nodo.idNodoPadre)
+                nodoRaiz.append(li);
+            });
+
+            return nodoRaiz;
+        };
+
+
+        //Crea un hijo y lo agrega a la lista cuando ya hay un <ul>
+        var crearNodoElseChilds = function (nodoRecibido) {
+
+            var nodoHijo = $("<li class='imChildren'></li>");
+            $.each(nodoRecibido, function (i, nodo) {
+
+                var nodoLink = $("<a></a>");
+
+                nodoLink.text(nodo.nombre);
+                nodoLink.attr("href", "#");
+                nodoLink.addClass("nod-link");
+                nodoLink.data("id", nodo.id);
+                nodoHijo.append(nodoLink);
+
+                nodoHijo.data("id", nodo.id);
+                nodoHijo.data("nombre", nodo.nombre);
+                nodoHijo.data("idPadre", nodo.idPadre);
+            });
+
+            return nodoHijo;
+        };
+
+
+
+        //
+        //Cuando el navegador ha renderizado el documento completo
+        $(document).ready(function () {
+
+
+            //
+            //Variables que hacen referencia a elementos del DOM
+            //
+            var nombreEsquema = $("#nombre").val();
+
+            var createForm = $("#create-form");
+
+            var treeViewNodos = $("#treeview-nodos");
+
+            var erroresDiv = $("#errores");
+
+            var mensajesDiv = $("#mensajes");
+
+            var treeViewNodos = $("#treeview-nodos");
+
+            var butEliminarFormCreate = $("#form-button-delete-nodo");
+
+            var butModificarFormCreate = $("#form-button-edit-nodo");
+
+            var campoNombre = $("#nombre");
+
+            var botonClonar = $("#form-button-clone-nodo");
+
+            var idEsquemaToClone = parseInt($("#idEsquema").val());
+
+            var idToClone = parseInt($("#idNodoPadre").val())
+
+            var nodoReceived = {"idNodoPadre":871,"nombre":"22","mensaje":null,"idEsquema":79,"idNodo":0,"idNodoPadreNH":null,"idNodoToChange":null,"idNodoPadreChange":null,"NombreNivelEscolar":null,"NombreUsuarioCreacion":null,"descripcion":null,"fechaCreacion":"\/Date(-62135596800000)\/","fechaModificacion":null}
+
+
+            //Ejecutamos la función para agregar el nodo padre
+            poblarTreeViewPadres(nodoReceived);
+
+
+            // Poblar el TreeView nodo padre
+            function poblarTreeViewPadres(nodoReceived) {
+                var nuevoNodo = crearNodoPadre(nodoReceived);
+
+                treeViewNodos.append(nuevoNodo);
+
+                if (nodoReceived.idNodo == 0) {
+                    butEliminarFormCreate.attr("disabled", "true");
+
+                    butModificarFormCreate.attr("disabled", "true");
+                }
+
+            }
+
+            //
+            //Funciones OnClick de los botones del formulario
+            //
+
+
+            //OnClick enlaces de categoría del TreeView.
+            treeViewNodos.on("click", "a.nod-link", function (e) {
+                e.preventDefault();
+
+                var li = $(this).parent("li");
+
+                var id = parseInt(li.data("id"));
+                var idPadre = parseInt(li.data("idPadre"));
+                var nombre = li.data("nombre");
+                var idNodoPadre = li.data("idNodoPadre");
+
+                // Resaltar el enlace clickado
+                $("a.nod-link").removeClass("elementoSeleccionado");
+                $(this).addClass("elementoSeleccionado");
+
+                updateForms(id, nombre, (idPadre || idNodoPadre));
+            });
+
+
+            //OnClick del botón nuevo para agregar un nuevo hijo del nodo raíz
+            $("#form-button-new-son").on("click", function (e) {
+                e.preventDefault();
+
+                $("#btn-padre").hide();
+                $("#btn-hijos").show();
+                $("#form-nodo-hijo").show();
+                $("#panel-heading").html("Creación de nodos");
+            });
+
+
+            //Función del botón "Cancelar" en editar nodo.
+            $("#form-button-cancel-editar").on("click", function (e) {
+                e.preventDefault();
+
+                $("#btn-padre").show();
+                $("#btns-editar").hide();
+                $("#nombre").attr("disabled", "true");
+                $("#nombre").attr("readonly", "true");
+                $("#panel-heading").html("Gestión de nodos")
+            });
+
+
+            //OnClick del botón cancelar del panel "Crear Nuevo Hijo"
+            $("#form-button-cancel-son").on("click", function (e) {
+                e.preventDefault();
+
+                $("#btn-padre").show();
+                $("#btn-hijos").hide();
+                $("#form-nodo-hijo").hide();
+                $("#create-form-nodo-hijo").val("");
+                $("#create-form-nodo-hijo").html("");
+                $("#panel-heading").html("Gestión de nodos")
+            });
+
+
+            ////Función del botón de editar nodo.
+            $("#form-button-edit-nodo").on("click", function (e) {
+                e.preventDefault();
+
+                $("#panel-heading").html("Editar Nodo");
+                $("#btns-editar").show();
+                $("#btn-padre").hide();
+                $("#nombre").removeAttr("disabled");
+                $("#nombre").removeAttr("readonly");
+            });
+
+
+            //Función OnClick del botón "Cambiar Ubicación"
+            $("#form-button-change-nodo").on("click", function (e) {
+                e.preventDefault();
+
+                $("#panel-heading").html("Cambira Nodo");
+                $("#btns-editar").hide();
+                $("#form-cambiar-nodo").show();
+                $("#btns-cambiar").show();
+                $("#nombre").attr("disabled", "true");
+                $("#nombre").attr("readonly", "true");
+            });
+
+
+            //Función OnClick del botón cancelar en cambiar nodo
+            $("#form-button-cancel-change").on("click", function (e) {
+                e.preventDefault();
+
+                $("#form-cambiar-nodo").hide();
+                $("#btns-cambiar").hide();
+                $("#btn-padre").show();
+                $("#panel-heading").html("Gestión de nodos");
+                $("#name-nodo-change").val("")
+                $("#idpadre-nodo-change").val("");
+                $("#id-nodo-change").val("");
+            });
+
+
+            //
+            //Función del botón clonar
+            $("#form-button-clone-nodo").on("click", function (e) {
+                e.preventDefault();
+
+                location.href = "/Esquemas/ClonarEsquema?id=" + idEsquemaToClone;
+
+            })
+
+
+            //
+            //Función del botón aceptar en la modal
+            $("#aceptarEliminar").on("click", function (e) {
+
+                //Escondemos la modal
+                $("#confirmacion").modal('hide');
+
+                //Enviamos el formulario
+                $.post("/Esquemas/Delete", createForm.serialize())
+                .done(function (response, textStatus, jqXHR) {
+
+                    var nodoRecibido = response;
+
+                    //Si la respuesta trae la propiedad ok a true
+                    if (nodoRecibido.ok == true) {
+
+                        //Obtenemos el elemento <li> del nodo que se ha eliminado
+                        var li = treeViewNodos.find("li").filter(function () {
+                            return $(this).data("id") === nodoRecibido.id;
+                        });
+
+                        //Obtenemos el elemento <ul> donde está que se ha eliminado
+                        var ul = treeViewNodos.find("ul").filter(function () {
+                            return $(this).data("id") === nodoRecibido.idPadre;
+                        });
+
+                        var a = treeViewNodos.find(".nav-link").filter(function () {
+                            return $(this).data("id") === nodoRecibido.idPadre;
+                        });
+
+                        var aPadre = treeViewNodos.find(".nav-link-padre").filter(function () {
+                            return $(this).data("id") === nodoRecibido.idPadre;
+                        });
+
+                        //Removemos el elemento de la lista
+                        li.remove();
+
+                        //Vaciamos el formulario
+                        campoNombre.html("");
+                        campoNombre.val("");
+
+                        //Si el padre del elemento que se ha eliminado,
+                        //no tiene más hijos, le quitamos el nav-link +/-
+                        if (ul.find("li").length === 0) {
+
+                            ul.remove();
+                            a.remove();
+                            aPadre.remove();
+                        }
+
+                        //Aplicamos los atributos a los botones
+                        butEliminarFormCreate.attr("disabled", "true");
+                        butModificarFormCreate.attr("disabled", "true");
+                        $("#form-button-new-son").attr("disabled", "true");
+
+                        mensajesDiv.html("<p>" + nodoRecibido.mensaje + "</p>");
+                        mensajesDiv.fadeIn(800).delay(5000).fadeOut(800);
+                    }
+                    else {
+
+                        erroresDiv.html("<p>" + nodoRecibido.mensaje + "</p>");
+                        erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+                    }
+                })
+
+                .fail(function (response, textStatus, jqXHR) {
+
+                    erroresDiv.removeClass();
+                    erroresDiv.addClass("alert-danger alert");
+                    erroresDiv.html("<h5>Error en el servidor</h5>");
+                    erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+                })
+            })
+
+
+            //
+            //Función del botón "Eliminar" nodo
+            $("#form-button-delete-nodo").on("click", function (e) {
+                e.preventDefault();
+
+                $("#confirmacion").modal('show');
+
+            });
+
+
+            //
+            //Función del botón "Modificar" en la funcionalidad del botón "Editar" nodo
+            $("#form-button-modify").on("click", function (e) {
+                e.preventDefault();
+
+                nombre = $("#nombre").val();
+
+                //Llamamos a la función para verificar si el campo nombre,
+                //no está vacío.
+                var nameIsEmpty = validateFormEdit(nombre);
+
+                if (nameIsEmpty == false) {
+
+                    $.post("/Esquemas/Edit_Nodo", createForm.serialize())
+                    .done(function (response, textStatus, jqXHR) {
+
+                        var nodoRecibido = response;
+
+                        //Si nodo recibido trae la propiedad ok a "true"
+                        if (nodoRecibido.ok == true) {
+
+                            //Obtenemos elementos aplicando filtros
+                            var li = treeViewNodos.find("li").filter(function () {
+                                return $(this).data("id") === nodoRecibido.id;
+                            });
+
+                            var nodoLink = treeViewNodos.find("a.nod-link").filter(function () {
+                                return $(this).data("id") === nodoRecibido.id;
+                            });
+
+                            var icon = treeViewNodos.find("a.nav-link").filter(function () {
+                                return $(this).data("id") === nodoRecibido.id;
+                            });
+
+                            //Cambiamos el nombre del elemento
+                            nodoLink.text(nodoRecibido.nombre);
+                            nodoLink.attr("href", "#");
+                            nodoLink.addClass("nod-link");
+                            li.prepend(nodoLink);
+                            li.prepend(icon);
+
+                            //Agregamos el elemento a la lista
+                            li.data("nombre", nodoRecibido.nombre)
+
+                            //Aplicamos los atributos a los botones
+                            $("#btn-padre").show();
+                            $("#btns-editar").hide();
+                            $("#nombre").attr("disabled", "true");
+                            $("#nombre").attr("readonly", "true");
+
+                            mensajesDiv.html("<p>" + nodoRecibido.mensaje + "</p>");
+                            mensajesDiv.fadeIn(800).delay(5000).fadeOut(800);
+                        }
+                        else {
+                            erroresDiv.html("<p>" + nodoRecibido.mensaje + "</p>");
+                            erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+                        }
+                    })
+
+                    .fail(function (response, textStatus, jqXHR) {
+
+                        erroresDiv.removeClass();
+                        erroresDiv.addClass("alert-danger alert");
+                        erroresDiv.html("<h5>Error en el servidor</h5>");
+                        erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+
+                    })
+               }
+            });
+
+
+            //
+            //Función del botón de crear un nodo hijo.
+            $("#form-button-save-new-son").on("click", function (e) {
+                e.preventDefault();
+
+                //Llamamos a la función para verificar si el campo nombre,
+                //no está vacío.
+                var nameIsEmpty = validateForm();
+
+                if (nameIsEmpty == false) {
+
+                    $.post("/Esquemas/Nodos",  createForm.serialize())
+                    .done(function (response, textStatus, jqXHR) {
+
+                        var nodoRecibido = response;
+
+                        //Si el nodo recibido tiene la propiedad ok a true
+                        if (nodoRecibido.ok == true) {
+
+                            //Obtenemos elementos aplicando filtros
+                            var li = treeViewNodos.find("li").filter(function () {
+                                return $(this).data("id") === response.idPadre || $(this).data("idNodoPadre") === response.idPadre;
+                            });
+
+                            var ul = treeViewNodos.find("ul").filter(function () {
+                                return $(this).data("id") === response.idPadre;
+                            });
+
+                            //Si la lista no tiene una <ul>
+                            if (li.find("ul").length === 0)
+                            {
+
+                                var navLink = li.find("a.nav-link");
+                                var navLinkPadre = li.find("a.nav-link-padre");
+
+                                //Verificamos si es el nodo raíz
+                                if (treeViewNodos.find("ul").length === 1) {
+
+                                    //Si es el nodo raíz, le agregamos el ícono de navegación con la clase
+                                    //nav-link-padre
+                                    if (navLinkPadre.length === 0) {
+
+                                        var navLink = $("<a></a>");
+                                        navLink.html("<span class=\"flecha\"></span>");
+                                        navLink.attr("href", "#");
+                                        navLink.attr("id","navLinkPadre");
+                                        navLink.addClass("nav-link-padre");
+                                        navLink.addClass("has-children");
+                                        //navLink.addClass("has-children");
+                                        navLink.data("id", nodoRecibido.idPadre);
+                                        li.prepend(navLink);
+                                        navLink.trigger('click');
+
+                                    }
+
+                                } else {
+
+                                    //Si es un nodo hijo, le agregamos el ícono de navegación con la clase
+                                    //nav-link
+                                    if (navLink.length === 0) {
+
+                                        var navLink = $("<a></a>");
+                                        navLink.html("<span class=\"flecha\"></span>");
+                                        navLink.attr("href", "#");
+                                        navLink.addClass("nav-link");
+                                        navLink.addClass("has-children");
+                                        //navLink.addClass("imChildren");
+                                        navLink.data("id", nodoRecibido.idPadre);
+                                        li.prepend(navLink);
+                                        navLink.trigger('click');
+                                    }
+
+                                }
+                    
+                            }
+                            //Si la lista tiene una <ul>
+                            else {
+
+                                var nodo = crearNodoElseChilds([response]);
+
+                                ul.append(nodo);
+
+                            }
+
+                            //Aplicamos los atributos a los botones
+                            $("#btn-padre").show();
+                            $("#btn-hijos").hide();
+                            $("#form-nodo-hijo").hide();
+                            $("#create-form-nodo-hijo").val("");
+                            $("#create-form-nodo-hijo").html("");
+
+                            mensajesDiv.html("<p>" + nodoRecibido.mensaje + "</p>");
+                            mensajesDiv.fadeIn(800).delay(5000).fadeOut(800);
+
+                        } else {
+                            erroresDiv.html("<p>" + nodoRecibido.mensaje + "</p>");
+                            erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+                        }
+                    })
+
+                    .fail(function (response, textStatus, jqXHR) {
+
+                        erroresDiv.removeClass();
+                        erroresDiv.addClass("alert-danger alert");
+                        erroresDiv.html("<h5>Error en el servidor</h5>");
+                        erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+
+                    })
+                }
+            });
+
+
+            //OnClick del botón "Cambiar" en Cambiar Nodo
+            $("#form-button-nodo-change").on("click", function (e) {
+                e.preventDefault();
+
+                var nodoDestino = $("#name-nodo-change").val();
+
+                var idPadreAntiguo = parseInt($("#idNodoPadre").val());
+
+                var nameIsEmpty = validateInputChange(nodoDestino);
+
+                if (nameIsEmpty == false) {
+
+                    $.post("/Esquemas/MoveNodos", createForm.serialize())
+                    .done(function (response, textStatus, jqXHR) {
+
+                        var nodoRecibido = response;
+
+                        //Si el nodo recibido tiene la propiedad ok a true
+                        if (nodoRecibido.ok == true) {
+
+                            //Nodo a remover
+                            var liAntigua = treeViewNodos.find("li").filter(function () {
+                                return $(this).data("id") === nodoRecibido.id;
+                            });
+                            //Removemos el nodo del padre antiguo
+                            liAntigua.remove();
+
+                            //Datos de padre antiguo
+                            var liPadreAntiguo = treeViewNodos.find("li").filter(function () {
+                                return $(this).data("id") === idPadreAntiguo;
+                            });
+
+                            var ulAntigua = liPadreAntiguo.find("ul").filter(function () {
+                                return $(this).data("id") === idPadreAntiguo;
+                            });
+
+                            //Variables de los iconos de navegación
+                            var a = treeViewNodos.find("a.nav-link").filter(function () {
+                                return $(this).data("id") === idPadreAntiguo;
+                            });
+
+                            var aPadre = treeViewNodos.find("a.nav-link-padre").filter(function () {
+                                return $(this).data("id") === idPadreAntiguo;
+                            });
+
+
+                            //Si no tiene mas hijos, removemos el nav-link +/-
+                            if (ulAntigua.children().length <= 0) {
+
+                                    ulAntigua.remove();
+                                    a.remove();
+                                    aPadre.remove();
+                                }
+
+
+                            //Datos del padre nuevo
+                            var liPadreNuevo = treeViewNodos.find("li").filter(function () {
+                                return $(this).data("id") === nodoRecibido.idPadre;
+                            });
+
+                            var ulNuevo = treeViewNodos.find("ul").filter(function () {
+                                return $(this).data("id") === nodoRecibido.idPadre;
+                            });
+
+                                //Si el padre nuevo tiene una ul
+                                if (ulNuevo.length > 0) {
+
+                                    var li = $("<li class='has-children'></li>");
+                                    var nodoLink = $("<a></a>");
+
+                                    nodoLink.text(nodoRecibido.nombre);
+                                    nodoLink.attr("href", "#");
+                                    nodoLink.addClass("nod-link");
+                                    nodoLink.data("id", nodoRecibido.id);
+                                    li.append(nodoLink);
+
+                                    li.data("id", nodoRecibido.id);
+                                    li.data("nombre", nodoRecibido.nombre);
+                                    li.data("idPadre", nodoRecibido.idPadre);
+
+                                    //Si el nodo recibido tiene hijos, le agregamos el nav-link +/-
+                                    if (nodoRecibido.hijos === true) {
+                                        var navLink = $("<a></a>");
+                                        navLink.html("<span class=\"flecha\"></span>");
+                                        navLink.attr("href", "#");
+                                        navLink.addClass("nav-link");
+                                        navLink.addClass("has-children");
+
+                                        navLink.data("id", nodoRecibido.id);
+                                        li.prepend(navLink);
+                                        navLink.trigger('click');
+                                    }
+
+                                    ulNuevo.append(li);
+
+                                } else {
+
+                                    //Si el padre nuevo no tiene ul (no tiene hijos o no está desplegado)
+                                    if (liPadreNuevo.find("ul").length === 0) {
+
+                                        var navLink = liPadreNuevo.find("a.nav-link");
+
+                                        //Si no tiene nav-link +/- lo agregamos
+                                        if (navLink.length === 0) {
+                                                var navLink = $("<a></a>");
+                                                navLink.html("<span class=\"flecha\"></span>");
+                                                navLink.attr("href", "#");
+                                                navLink.addClass("nav-link");
+                                                navLink.data("id", nodoRecibido.idPadre);
+                                                liPadreNuevo.prepend(navLink);
+                                                navLink.trigger('click');
+                                        } else {
+
+                                            navLink.trigger('click');
+                                        }
+
+                                    }
+
+                                }
+
+                            mensajesDiv.html("<p>" + nodoRecibido.mensaje + "</p>");
+                            mensajesDiv.fadeIn(800).delay(5000).fadeOut(800);
+
+                            //Aplicamos los atributos a los botones
+                            $("#form-cambiar-nodo").hide();
+                            $("#btns-cambiar").hide();
+                            $("#btn-padre").show();
+                            $("#panel-heading").html("Gestión de nodos");
+                            $("#name-nodo-change").val("")
+                            $("#idpadre-nodo-change").val("");
+                            $("#id-nodo-change").val("");
+
+                        }
+                        else {
+                            erroresDiv.html("<p>" + nodoRecibido.mensaje + "</p>");
+                            erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+                        }
+
+                    })
+
+                    .fail(function (response, textStatus, jqXHR) {
+
+                        erroresDiv.removeClass();
+                        erroresDiv.addClass("alert-danger alert");
+                        erroresDiv.html("<h5>Error en el servidor</h5>");
+                        erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+
+                    })
+
+                }
+
+            });
+
+
+            // Comprobamos que el nombre del nodo a editar no exista en la base de datos si salimos del foco de la caja de texto
+            $('#nombre').on('focusout', function () {
+
+                var nombreNodo = $("#nombre").val();
+
+                if (nombreNodo === "") {
+                    erroresDiv.hide();
+                }
+
+                $.post("/Esquemas/ComprobarNombreUnico", createForm.serialize())
+                    .done(function (response, textStatus, jqXHR) {
+
+                        if (response.existe == true) {
+                            erroresDiv.html("El nombre del nodo " + nombreNodo + " ya existe.");
+                            erroresDiv.show();
+                            $("#form-button-modify").attr("disabled", "true");
+
+                        }
+                        else if (response.existe == false) {
+                            erroresDiv.hide();
+                            $("#form-button-modify").removeAttr("disabled");
+                        }
+                    })
+
+                    .fail(function (response, textStatus, jqXHR) {
+
+                        erroresDiv.removeClass();
+                        erroresDiv.addClass("alert-danger alert");
+                        erroresDiv.html("<h5>Error en el servidor</h5>");
+                        erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+
+                    })
+            });
+
+
+            // Comprobamos que el nombre del nodo a crear no exista en la base de datos si salimos del foco de la caja de texto
+            $('#create-form-nodo-hijo').on('focusout', function () {
+
+                var nombreNodo = $("#create-form-nodo-hijo").val();
+                var idPadre = parseInt($("#idNodo").val());
+                var idNodoPadre = parseInt($("#idNodoPadre").val());
+                var idNodo2 = 0;
+
+                if (idPadre === 0) {
+
+                    var nodo = {
+                        idNodoPadre: idNodoPadre,
+                        idNodo: idNodo2,
+                        nombre: nombreNodo
+                    };
+
+                } else {
+
+                    var nodo = {
+                        idNodoPadre: idPadre,
+                        idNodo: idNodo2,
+                        nombre: nombreNodo
+                    };
+
+                }
+
+
+                if (nombreNodo == "") {
+                    erroresDiv.hide();
+                }
+
+                $.post("/Esquemas/ComprobarNombreUnico", nodo)
+                    .done(function (response, textStatus, jqXHR) {
+
+                        if (response.existe == true) {
+                            erroresDiv.html("El nombre del nodo " + nombreNodo + " ya existe.");
+                            erroresDiv.show();
+                            $("#form-button-save-new-son").attr("disabled", "true");
+
+                        }
+                        else if (response.existe == false) {
+                            erroresDiv.hide();
+                            $("#form-button-save-new-son").removeAttr("disabled");
+                        }
+                    })
+
+                    .fail(function (response, textStatus, jqXHR) {
+
+                        erroresDiv.removeClass();
+                        erroresDiv.addClass("alert-danger alert");
+                        erroresDiv.html("<h5>Error en el servidor</h5>");
+                        erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+
+                    })
+            });
+
+
+            //
+            // Actualiza los formularios de creación, edición y borrado
+            // con los datos que toma como parámetros.
+            var updateForms = function (id, nombre, idPadre) {
+
+                //Si el formulario de cambiar nodo está oculto
+                if ($("#form-cambiar-nodo").is(":hidden")) {
+
+                    //Si la id del nodo seleccionado es 0, quiere decir
+                    //que es el nodo raíz
+                    if (id == 0) {
+
+                        $("#nombre").val(nombre)
+
+                        $("#idNodoPadre").val(idPadre);
+
+                        $("#idNodo").val(id);
+
+                        $("#create-form-id-nodo-to-create").val(0)
+
+                        $("#create-form-id-nodo-delete").val(id);
+
+                        $("#create-form-id-nodo-create-son").val(idPadre);
+
+                        nodoRaiz = {
+                            "id": id,
+                            "nombre": nombre,
+                            "idPadre": idPadre
+                        }
+                        $("#prueba-variable").html("nombre: " + nodoRaiz.nombre + "<br>id: " + nodoRaiz.id + "<br>idPadre: " + nodoRaiz.idPadre)
+                    }
+                    else {
+
+                        $("#nombre").val(nombre)
+
+                        $("#idNodoPadre").val(idPadre);
+
+                        $("#idNodo").val(id);
+
+                        $("#create-form-id-nodo-delete").val(id);
+
+                        $("#create-form-id-nodo-create-son").val(id);
+
+                        nodoClick = {
+                            "id": id,
+                            "nombre": nombre,
+                            "idPadre": idPadre
+                        }
+
+                        $("#prueba-variable").html("nombre: " + nodoClick.nombre + "<br>id: " + nodoClick.id + "<br>idPadre: " + nodoClick.idPadre)
+
+                    }
+
+                }
+                else {//Si el formulario de cambiar nodo, no está oculto
+
+                    //Si la id del nodo seleccionado es 0, quiere decir
+                    //que es el nodo raíz
+                    if (id == 0) {
+
+                        $("#name-nodo-change").val(nombre)
+
+                        $("#idpadre-nodo-change").val(idPadre);
+
+                        $("#id-nodo-change").val(id);
+
+                    }
+                    else {
+
+                        $("#name-nodo-change").val(nombre)
+
+                        $("#idpadre-nodo-change").val(idPadre);
+
+                        $("#id-nodo-change").val(id);
+
+                    }
+                }
+
+                //Comprobamos que sea el nodo raíz, para que 
+                //se pueda clonar
+                if (idPadre === idToClone && id === 0) {
+                    botonClonar.removeAttr("disabled");
+                } else {
+                    botonClonar.attr("disabled", "true");
+                }
+
+                butEliminarFormCreate.prop("disabled", id === 0);
+
+                butModificarFormCreate.prop("disabled", id === 0);
+
+                $("#form-button-new-son").removeAttr("disabled");
+
+                $("#mensaje-modal").html("Se va a eliminar el nodo " + nombre);
+            };
+
+
+            //
+            //OnClick enlace de navegación del TreeView padre.
+            treeViewNodos.on("click", "a.nav-link-padre", function (e) {
+                e.preventDefault();
+                $(e.target).closest("a").css("transform", "rotate(90deg)");
+
+                var li = treeViewNodos.find("li").filter(function () {
+                    return $(this).data("idNodoPadre");
+                });
+
+                var glyphiconSpan = li.find("> a > span");
+
+                if (li.find("ul").length === 0) {
+                    // Nodo no está desplegado, recuperamos hijos y lo desplegamos.
+                    var id = parseInt(li.data("idNodoPadre"));
+                    $.post("/Esquemas/ObtenerNodosHijos?idNodoPadre=" + id, function (nodosHijos) {
+                        var nodo = crearNodosForTreeView(nodosHijos);
+
+                        nodo.hide();
+                        li.append(nodo);
+                        nodo.slideDown();
+
+                        glyphiconSpan.toggleClass("glyphicon-plus glyphicon-minus");
+                    });
+                } else {
+                    // Nodo está desplegado, lo contraemos.
+                    li.find("ul").slideUp(function () {
+                        $(e.target).parent().css("transform", "rotate(0deg)");
+                        $(this).remove();
+                    });
+                    glyphiconSpan.toggleClass("glyphicon-plus glyphicon-minus");
+                }
+
+            });
+
+
+            //
+            //OnClick enlace de navegación del TreeView hijos.
+            treeViewNodos.on("click", "a.nav-link", function (e) {
+                e.preventDefault();
+                $(e.target).closest("a").css("transform", "rotate(90deg)");
+
+                idToCompare = $(this).data("id");
+
+                var li = treeViewNodos.find("li").filter(function () {
+                    return $(this).data("id") === idToCompare;
+                });
+
+                var glyphiconSpan = li.find("> a > span");
+
+                if (li.find("ul").length === 0) {
+                    // Nodo no está desplegado, recuperamos hijos y lo desplegamos.
+                    var id = parseInt(li.data("id"));
+                    $.post("/Esquemas/ObtenerNodosHijos?idNodoPadre=" + id, function (nodosHijos) {
+                        var nodo = crearNodosForTreeView(nodosHijos);
+
+                        nodo.hide();
+                        li.append(nodo);
+                        nodo.slideDown();
+
+                        glyphiconSpan.toggleClass("glyphicon-plus glyphicon-minus");
+                    });
+                } else {
+                    // Nodo está desplegado, lo contraemos.
+                    li.find("ul").slideUp(function () {
+                        $(e.target).parent().css("transform", "rotate(0deg)");
+                        $(this).remove();
+                    });
+                    glyphiconSpan.toggleClass("glyphicon-plus glyphicon-minus");
+                }
+
+            });
+
+
+            //
+            // Poblar el TreeView con Nodos Hijos
+            var li = treeViewNodos.find("li").filter(function () {
+                return $(this).data("idNodoPadre");
+            });
+
+            var id = parseInt(li.data("idNodoPadre"));
+
+
+            $.post("/Esquemas/ObtenerNodosHijos?idNodoPadre=" + id, function (nodosHijos) {
+
+                //Comprobamos si el nodo tiene hijos
+                if (nodosHijos.length != 0) {
+
+                    var nuevoNodo = crearNodosForTreeView(nodosHijos);
+
+                    li.append(nuevoNodo);
+
+                }
+
+                //Si tiene hijo añadimos el icono
+                if (li.find("ul").length === 1) {
+                    var navLink = $("<a></a>");
+                    navLink.html("<span class=\"flecha\"></span>");
+                    navLink.attr("href", "#");
+                    navLink.addClass("nav-link-padre");
+                    navLink.addClass("has-children");
+                    navLink.data("id", id);
+                    li.prepend(navLink);
+                }
+
+            });
+
+
+            //
+            //Función para validar que el nombre del nodo no esté vacío
+            function validateForm() {
+                var nombreNodo = document.forms["create-form"]["create-form-nodo-hijo"].value;
+                var vacio = false;
+                if (nombreNodo == null || nombreNodo == "") {
+                    erroresDiv.html("<h5>El nombre del nodo no puede estar vacío</h5>")
+                    erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+                    vacio = true;
+                }
+                return vacio;
+            }
+
+
+            //
+            //Función para validar que el nombre del nodo no esté vacío al editar el nombre del nodo
+            function validateFormEdit(nombreNodo) {
+
+                var vacio = false;
+                if (nombreNodo == null || nombreNodo == "") {
+                    erroresDiv.html("<h5>El nombre del nodo a modificar no puede estar vacío</h5>")
+                    erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+                    vacio = true;
+                }
+                return vacio;
+            }
+
+
+            //
+            //Función para validar que el nombre del nodo al cual queremos mover otro nodo no esté vacío
+            function validateInputChange(nombreNodo) {
+
+                var vacio = false;
+                if (nombreNodo == null || nombreNodo == "") {
+                    erroresDiv.html("<h5>El nombre del nodo destino no puede estar vacío</h5>")
+                    erroresDiv.fadeIn(800).delay(5000).fadeOut(800);
+                    vacio = true;
+                }
+                return vacio;
+            }
+
+
+            //
+            //Función para determinar si un nodo tiene hijos
+            function consultaTieneHijos(idPadre) {
+
+                var tieneHijos;
+
+                $.post("/Esquemas/TieneNodosHijos?idNodoPadre=" + idPadre, function(resp) {
+
+                    tieneHijos = resp;
+                })
+
+                return tieneHijos;
+            }
+
+
+            //
+            //Fade in & out de mensaje
+            mens = ''
+            //Control de la aparición del mensaje de guardado/modificación/error
+            if (!($.isEmptyObject(mens))) {
+                if (mens.indexOf("existe") > -1 || mens.indexOf("Fallo") > -1) {
+                    $("#errores-model").fadeIn(800).delay(5000).fadeOut(800);
+                } else {
+                    $("#mensajes-model").fadeIn(800).delay(5000).fadeOut(800);
+                }
+            }
+
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
+ 
+        });
+    </script>
+
+
+<!-- Visual Studio Browser Link -->
+<script type="application/json" id="__browserLink_initializationData">
+    {"appName":"Chrome","requestId":"084b4be4d8f74bc4a4065d83fc19217b"}
+</script>
+<script type="text/javascript" src="http://localhost:3662/a9a33d585a7f4e1b8f6f02fde48ad5c7/browserLink" async="async"></script>
+<!-- End Browser Link -->
+
+</body>
+</html>

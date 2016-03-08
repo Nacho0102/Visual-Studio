@@ -1,0 +1,93 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using PagedList;
+
+namespace OLI2016MVC.Models.ViewModel
+{
+    public class VmMaterialesList
+    {
+        public VmMaterialesList()
+        {
+            //Instanciamos la clase blNivelesEscolares para obtener todos los niveles escolares.
+            listaNivelesEscolares = NivelesEscolares.All();
+            // Obtenemos el perfil de tipo autor
+            listaPerfilesUsuarios = PerfilesUsuarios.BuscarPerfilesUsuarios(Perfil.TipoPerfil.Autor);
+            this.activo = true;
+
+            page = 1;
+            pageSize = 5;
+            numResultadosPagina = 0;
+            listaMateriales = new List<Material>().ToPagedList(1, 1);
+            
+
+        }
+
+        public string nombre { get; set; }
+
+        public int idMaterial { get; set; }
+
+        public string categoria { get; set; }
+
+        public string descripcion { get; set; }
+
+        public string descripcion_categoria { get; set; }
+
+        public int? idNivelEscolar { get; set; }
+
+        public string nivelEscolar { get; set; }
+
+        public List<NivelesEscolares> listaNivelesEscolares { get; set; }
+
+        public String Materiales_fechaCreacion_desde { get; set; }
+        public String Materiales_fechaCreacion_hasta { get; set; }
+        public String Materiales_fechaModificacion_desde { get; set; }
+        public String Materiales_fechaModificacion_hasta { get; set; }
+
+        public string autor { get; set; }
+
+        public string autor_mod { get; set; }
+
+
+        public Enums.Estado? estado { get; set; }
+
+        public Enums.TipoMaterial? tipoMaterial { get; set; }
+
+        public Boolean activo { get; set; }
+
+        public int? u_id { get; set; }
+        public int? u_id_mod { get; set; }
+
+        public int primeraVez { get; set; }
+
+        public int? idEstado { get; set; }
+
+        public int? idTipoMaterial { get; set; }
+
+        //Listas de perfiles de usuario
+        public List<Usuarios> listaPerfilesUsuarios { get; set; }//
+
+        //Lista de resultados por pagina
+        //public List<SelectListItem> listaResultadosPagina { get; set; }//
+
+        //Paginacion
+        public int page { get; set; }
+        public int pageSize { get; set; }
+        public int resultadosTotales { get; set; }
+        //resultados por página
+        public int numResultadosPagina { get; set; }
+        
+        public PagedList.IPagedList<Material> listaMateriales { get; set; }
+
+        public List<string> listaCategorias { get; set; }
+
+       
+
+
+
+       
+    }
+}

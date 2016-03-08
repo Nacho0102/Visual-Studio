@@ -1,0 +1,160 @@
+@using PagedList.Mvc
+@model OLI2016MVC.Models.ViewModel.VmMaterialesList
+@{
+    ViewBag.Title = "List";
+}
+
+@*Buscador de Materiales*@
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div id="materiales-buscador" class="buscador">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <!-- Formulario --->
+                        <form id="form-materiales">
+                            @using (Html.BeginForm("List", "Materiales", FormMethod.Post, new { @class = "form-horizontal", @id = "formulario" }))
+                            {
+                                <fieldset id="vista_buscador" disabled>
+
+                                    <!-- Form Name -->
+                                    <legend class="text-center" style="font:bold">BUSCADOR DE MATERIALES</legend>
+                                    <!-- Nombre-->
+                                    <div class="form-group">
+                                        @Html.Label("Nombre", new { @class = "col-md-4 control-label" })
+                                        <div class="input-group sizeForm col-md-4'">
+                                            @Html.TextBoxFor(n => n.nombre, new { @class = "form-control input-md", @id = "nombre", @name = "nombre" })
+                                            <input id="idMaterial" name="idMaterial" type="hidden" value="" />
+                                        </div>
+                                    </div>
+
+                                    
+                                    <!-- Descripción-->
+                                    <div class="form-group">
+                                        @Html.Label("Descripción", new { @class = "col-md-4 control-label" })
+                                        <div class="input-group sizeForm col-md-4'">
+                                            @Html.TextBoxFor(d => d.descripcion, new { @class = "form-control input-md", @id = "descripcion", @name = "descripcion" })
+                                        </div>
+                                    </div>
+
+                                    <!-- Nivel escolar -->
+                                    <div class="form-group">
+                                        @Html.Label("Nivel Escolar", new { @class = "col-md-4 control-label" })
+                                        <div class="input-group sizeForm col-md-4'">
+                                            @Html.DropDownListFor(n => n.idNivelEscolar, new SelectList(Model.listaNivelesEscolares, "idNivelEscolar", "nombre"), "--Selecciona--", new { @class = "form-control", @id = "idNivelEscolar", @name = "nivelEscolar" })
+                                        </div>
+                                    </div>
+
+
+                                    <!-- Fecha de creación(desde)-->
+                                    <div class="form-group">
+                                        @Html.Label("Fecha de Creación(min)", new { @class = "col-md-4 control-label" })
+                                        <div class='input-group date datetimepicker sizeForm col-md-4'>
+                                            <input data-msg-required="Seleccione fecha de creación mínima"
+                                                   type='text' class="form-control sizeFormInput datePick focusInput"
+                                                   placeholder="Inicio (dd/mm/aaaa)"
+                                                   name="Materiales_fechaCreacion_desde"
+                                                   id="Materiales_fechaCreacion_desde" />
+                                            <span class="input-group-addon sizeFormInput datePick">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fecha de creación(hasta)-->
+                                    <div class="form-group">
+                                        @Html.Label("Fecha de Creación(max)", new { @class = "col-md-4 control-label" })
+                                        <div class='input-group date datetimepicker sizeForm col-md-4'>
+                                            <input data-msg-required="Seleccione fecha de creación máxima"
+                                                   type='text' class="form-control sizeFormInput datePick focusInput"
+                                                   placeholder="Inicio (dd/mm/aaaa)"
+                                                   name="Materiales_fechaCreacion_hasta"
+                                                   id="Materiales_fechaCreacion_hasta" />
+                                            <span class="input-group-addon sizeFormInput datePick">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fecha de modificación(desde)-->
+                                    <div class="form-group">
+                                        @Html.Label("Fecha de Modificación(min)", new { @class = "col-md-4 control-label" })
+                                        <div class='input-group date datetimepicker sizeForm col-md-4'>
+                                            <input data-msg-required="Seleccione fecha de modificación mínima"
+                                                   type='text' class="form-control sizeFormInput datePick focusInput"
+                                                   placeholder="Inicio (dd/mm/aaaa)"
+                                                   name="Materiales_fechaModificacion_desde"
+                                                   id="Materiales_fechaModificacion_desde" />
+                                            <span class="input-group-addon sizeFormInput datePick">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fecha de modificación(hasta)-->
+                                    <div class="form-group">
+                                        @Html.Label("Fecha de Modificación(max)", new { @class = "col-md-4 control-label" })
+                                        <div class='input-group date datetimepicker sizeForm col-md-4'>
+                                            <input data-msg-required="Seleccione fecha de modificación máxima"
+                                                   type='text' class="form-control sizeFormInput datePick focusInput"
+                                                   placeholder="Inicio (dd/mm/aaaa)"
+                                                   name="Materiales_fechaModificacion_hasta"
+                                                   id="Materiales_fechaModificacion_hasta" />
+                                            <span class="input-group-addon sizeFormInput datePick">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Autor Creación-->
+                                    <div class="form-group">
+                                        <!-- Obtenemos la lista previamente llena en el view model -->
+                                        @Html.Label("Autor Creación", new { @class = "col-md-4 control-label" })
+                                        <div class="input-group sizeForm col-md-4'">
+                                            @Html.DropDownListFor(m => m.u_id, new SelectList(Model.listaPerfilesUsuarios, "Id", "NombreCompleto"), "--Selecciona--", new { @class = "form-control", @id = "u_id", @name = "u_id" })
+                                        </div>
+                                    </div>
+
+                                    <!-- Autor Modificación-->
+                                    <div class="form-group">
+                                        <!-- Obtenemos la lista previamente llena en el view model -->
+                                        @Html.Label("Autor Modificación", new { @class = "col-md-4 control-label" })
+                                        <div class="input-group sizeForm col-md-4'">
+                                            @Html.DropDownListFor(m => m.u_id, new SelectList(Model.listaPerfilesUsuarios, "Id", "NombreCompleto"), "--Selecciona--", new { @class = "form-control", @id = "u_id_mod", @name = "u_id_mod" })
+                                        </div>
+                                    </div>
+
+
+                                    <!-- Tipo Material-->
+                                    <div class="form-group">
+                                        <label class="col-md-4 control-label" for="DdlTipo">Tipo Material:</label>
+                                        <div class="input-group sizeForm col-md-4'">
+                                            @Html.EnumDropDownListFor(tm => tm.tipoMaterial, "Seleccione tipo material", new { @class = "form-control", @id = " idTipoMaterial", @name = " idTipoMaterial" })
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group; col-md-12 text-center" style="padding-top: 1%">
+                                        <input type="submit" value="Buscar" id="ButBuscarMaterial" class="btn btn-primary" style="text-align:center" />
+                                        <div class="well resultados" id="resultados" hidden></div>
+                                    </div>
+                                </fieldset>
+                            }
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal">
+    <div id="cuerpoModal">
+    </div>
+</div>
+
+
+
+

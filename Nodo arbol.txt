@@ -1,0 +1,52 @@
+using System;
+using System.Collections.Generic;
+
+public class Nodo
+{
+    public Nodo(string data)
+    {
+        Data = data;
+
+        Hijos = new List<Nodo>();
+    }
+
+    public string Data { get; set; }
+    public List<Nodo> Hijos { get; set; }
+
+    public IEnumerable<Nodo> Descendientes()
+    {
+        foreach (var hijo in Hijos)
+        {
+            yield return hijo;
+
+            foreach (var n in hijo.Descendientes())
+                yield return n;
+        }
+    }
+}
+
+public class Test
+{
+    public static void Main()
+    {
+        var root = new Nodo("Raiz");
+
+        var l11 = new Nodo("Level 1 - 1");
+        var l12 = new Nodo("Level 1 - 2");
+
+        root.Hijos.Add(l11);
+        root.Hijos.Add(l12);
+
+        l11.Hijos.Add(new Nodo("Level 2 - 1"));
+        l11.Hijos.Add(new Nodo("Level 2 - 2"));
+        l12.Hijos.Add(new Nodo("Level 2 - 3"));
+        l12.Hijos.Add(new Nodo("Level 2 - 4"));
+
+        var descendientes = root.Descendientes();
+
+        foreach (var n in descendientes)
+            Console.WriteLine(n.Data);
+
+        Console.ReadLine();
+    }
+}

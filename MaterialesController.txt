@@ -1,0 +1,59 @@
+using OLI2016MVC.Models;
+using OLI2016MVC.Models.ViewModel;
+using PagedList;
+using System.Linq;
+using System.Web.Mvc;
+
+
+namespace OLI2016MVC.Controllers
+{
+    public class MaterialesController : BaseController
+    {
+        // GET: Listar los Materiales
+        public ActionResult List()
+        {
+            VmMaterialesList vm = new VmMaterialesList();
+            return PartialView(vm);
+        }
+
+
+        //GET: Mostrar los detalles del Material
+        [HttpGet]
+        [ActionName("Details")]
+        public ActionResult Details(int idMaterial)
+        {
+            Material materialBuscado =  Material.Find(idMaterial);
+            return PartialView("_DetailsMateriales", materialBuscado);
+        }
+
+
+        //GET: Mostrar resultados de la Búsqueda de Materiales
+        [HttpGet]
+        public ActionResult _TablaMaterialesList(VmMaterialesList vm,int? idSeleccionado)
+        {
+
+            if (ModelState.IsValid)
+            {
+
+                int resultsOnPage = (vm.pageSize);
+                int resultsPage = (int)(vm.page);
+
+                vm.listaMateriales = Material.BuscarMaterial(vm,idSeleccionado).ToPagedList(resultsPage, resultsOnPage);
+
+                foreach (Material material in vm.listaMateriales)
+                {
+                    vm.listaCategorias.Add(Material.ObtenerCategoria(material.idMaterial, material.TipoMaterial));
+
+                }
+
+                vm.numResultadosPagina = vm.listaMateriales.Count();
+                return View(vm);
+            }
+            else
+            {
+                return View(vm);
+            }
+        }
+
+    }
+}

@@ -1,0 +1,137 @@
+@{Layout = null;}
+@model OLI2016MVC.Models.ViewModel.VmMaterialesList
+@using PagedList.Mvc
+
+@{
+    List<int> listItems = new List<int>();
+    listItems.Add(5);
+    listItems.Add(10);
+    listItems.Add(20);
+    listItems.Add(50);
+    listItems.Add(100);
+}
+<style>
+    div.overflow-auto {
+        height: 120px;
+        overflow: auto;
+    }
+</style>
+
+<div id="resultados-parciales">
+
+    @Html.Label("Total de Resultados: " + Model.resultadosTotales.ToString())
+    @Html.PagedListPager(Model.listaMateriales, page => Url.Action("_TablaMaterialesList",
+    new
+    {
+        @idMaterial = Model.idMaterial,
+        @nombre = Model.nombre,
+        @descripcion = Model.descripcion,
+        @idNivelEscolar = Model.idNivelEscolar,
+        @tipoMaterial = Model.tipoMaterial,
+        @Materiales_fechaCreacion_desde = Model.Materiales_fechaCreacion_desde,
+        @Materiales_fechaCreacion_hasta = Model.Materiales_fechaCreacion_hasta,
+        @Materiales_fechaModificacion_desde = Model.Materiales_fechaModificacion_desde,
+        @Materiales_fechaModificacion_hasta = Model.Materiales_fechaModificacion_hasta,
+        @u_id = Model.u_id,
+        @u_id_mod = Model.u_id_mod,
+        @pageSize = Model.pageSize,
+        @page = page,
+        @class = "form-control"
+
+    }
+     ), PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(
+    new AjaxOptions() { HttpMethod = "Get", UpdateTargetId = "resultados-parciales" }))
+
+    @if (Model.numResultadosPagina > 1)
+    {
+        <label>Resultados por página: </label>
+        @Html.DropDownList("pageSize", new SelectList(listItems, Model.pageSize),
+        new
+        {
+            @idMaterial = Model.idMaterial,
+            @nombre = Model.nombre,
+            @descripcion = Model.descripcion,
+            @idNivelEscolar = Model.idNivelEscolar,
+            @idTipoMaterial = Model.idTipoMaterial,
+            @Materiales_fechaCreacion_desde = Model.Materiales_fechaCreacion_desde,
+            @Materiales_fechaCreacion_hasta = Model.Materiales_fechaCreacion_hasta,
+            @Materiales_fechaModificacion_desde = Model.Materiales_fechaModificacion_desde,
+            @Materiales_fechaModificacion_hasta = Model.Materiales_fechaModificacion_hasta,
+            @u_id = Model.u_id,
+            @u_id_mod = Model.u_id_mod,
+            @pageSize = Model.pageSize,
+            @page = Model.page,
+            id = "PageSize1",
+            @class = "form-control"
+
+        })
+    }
+
+
+    @if (Model.numResultadosPagina > 0)
+    {
+
+        <table id="tablaresultadosMateriales" class="table table-striped table-hover" style="text-align:center">
+            <thead class="thead-inverse">
+                <tr>
+                    <th class="col-md-2">Nombre</th>
+                    <th class="col-md-2">Tipo de Material</th>
+                    <th class="col-md-2">Categoría</th>
+                    <th class="col-md-2"></th>
+                    <th class="col-md-2"><input type="checkbox" id="chkBoxGeneral" class="col-md-2" />Marcar/Desmarcar Todos</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int contador = 0;
+                    foreach (OLI2016MVC.Models.Material material in Model.listaMateriales)
+                    {
+                        <tr data-id=@material.idMaterial>
+                            <td class="col-md-2">@material.nombre</td>
+                            <td class="col-md-2">@material.TipoMaterial</td>
+                            <td class="col-md-2">@Model.listaCategorias[contador]</td>
+                            <td>
+                                <div class="col-xs-1" data-toggle="modal" data-target="#detalles">
+                                    <button id="@material.idMaterial" data-toggle="tooltip" data-placement="bottom" title="Detalles" class="btn btn-default btn-sm detalles">Detalles</button>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="checkbox" class="chkBoxSelec col-md-2" value=@material.idMaterial />
+                                <script>
+                                    if (idmateriales_chequeados.indexOf("@material.idMaterial") > -1) {
+                                        $(".chkBoxSelec[value='@material.idMaterial']").attr("checked", true);
+                                        controlCheckGeneral(".chkBoxSelec", "#chkBoxGeneral");
+
+                                    }
+                                </script>
+                            </td>
+                        </tr>
+                        contador++;
+                    }
+                    <tr>
+                        <td>
+                            <div class="form-group; col-md-6 text-center" style="padding-top: 1%">
+                                <button type="button" class="btn btn-warning asociarCampo" id="asociarCampo" name="asociar_campo" data-toggle="modal" data-action="asociar-materiales" style="text-align:center" title="Seleccione un elemento para poder asociar" disabled>Asociar</button>
+                                <script>activaDesactivaAsociarCampo(idmateriales_chequeados, $("#asociarCampo"));</script>
+                            </div>
+                        </td>
+                    </tr>
+
+                }
+
+            </tbody>
+        </table>
+                    }
+
+</div>
+
+
+<script>
+    $("#PageSize1").change(function () {
+        $("#form-materiales").submit();
+    });
+
+    $(".detalles").on("click", Detalles);
+</script>
+
+

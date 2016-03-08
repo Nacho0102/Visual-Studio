@@ -1,0 +1,356 @@
+using OLI2016MVC.Models.ViewModel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace OLI2016MVC.Models
+{
+    public partial class Material
+    {
+        //Devuelve una lista de materiales UnDostres.
+        public static List<UnDosTres> BuscarUnDosTres(VmUnDosTresList vm)
+        {
+            OLI_2016Entities ctx = new OLI_2016Entities();
+            IQueryable<UnDosTres> resultados = ctx.Materiales.OfType<UnDosTres>().Where(e => e.activo == true && e.TipoMaterial == Enums.TipoMaterial.UnDosTres);
+            var fechaInicio = Convert.ToDateTime(vm.UnDosTres_fechaCreacion_desde);
+            var fechaFin = Convert.ToDateTime(vm.UnDosTres_fechaCreacion_hasta);
+            var fechaModInicio = Convert.ToDateTime(vm.UnDosTres_fechaModificacion_desde);
+            var fechaModFin = Convert.ToDateTime(vm.UnDosTres_fechaModificacion_hasta);
+
+            if (vm.nombre != null)
+            {
+                resultados = resultados.Where(p => p.nombre.ToUpper().Contains(vm.nombre.ToUpper()));
+            }
+
+            if (vm.descripcion != null)
+            {
+                resultados = resultados.Where(p => p.descripcion.ToUpper().Contains(vm.descripcion.ToUpper()));
+            }
+
+            if (vm.idNivelEscolar != null)
+            {
+                resultados = resultados.Where(p => p.idNivelEscolar == vm.idNivelEscolar);
+            }
+
+            if (vm.u_id != null)
+            {
+                resultados = resultados.Where(p => p.u_id == vm.u_id);
+            }
+
+            if (vm.u_id_mod != null)
+            {
+                resultados = resultados.Where(p => p.u_id_mod == vm.u_id_mod);
+            }
+            if (vm.idCategoria != null)
+            {
+                resultados = resultados.Where(p => p.idCategoria == vm.idCategoria);
+            }
+
+
+            //Si tenemos llena la fecha de creacion inicio, buscamos solo por esa fecha
+            if (!String.IsNullOrEmpty(vm.UnDosTres_fechaCreacion_desde) && String.IsNullOrEmpty(vm.UnDosTres_fechaCreacion_hasta))
+            {
+                resultados = resultados.Where(d => d.fechaCreacion >= fechaInicio);
+            }
+            //Si tenemos llena la fecha de creacion fin, buscamos solo por esa fecha
+            if (String.IsNullOrEmpty(vm.UnDosTres_fechaCreacion_desde) && !String.IsNullOrEmpty(vm.UnDosTres_fechaCreacion_hasta))
+            {
+                resultados = resultados.Where(d => d.fechaCreacion <= fechaFin);
+            }
+            //Si tenemos las dos fechas de creación,filtramos por ese rango de fechas introducido.
+            if (!String.IsNullOrEmpty(vm.UnDosTres_fechaCreacion_desde) && !String.IsNullOrEmpty(vm.UnDosTres_fechaCreacion_hasta))
+            {
+                resultados = resultados.Where(d => d.fechaCreacion >= fechaInicio && d.fechaCreacion <= fechaFin);
+            }
+
+            //Si tenemos dos fechas de modificacion, filtramos por ese rango de fechas introducido.
+            if (!String.IsNullOrEmpty(vm.UnDosTres_fechaModificacion_desde) && !String.IsNullOrEmpty(vm.UnDosTres_fechaModificacion_hasta))
+            {
+                resultados = resultados.Where(d => d.fechaModificacion >= fechaModInicio && d.fechaModificacion <= fechaModFin);
+            }
+
+            //Si tenemos llena la fecha de modificacion inicio, solo buscamos por esa fecha
+            if (!String.IsNullOrEmpty(vm.UnDosTres_fechaModificacion_desde) && String.IsNullOrEmpty(vm.UnDosTres_fechaModificacion_hasta))
+            {
+                resultados = resultados.Where(d => d.fechaModificacion >= fechaModInicio);
+            }
+            //Si tenemos llena la fecha de modificacion fin, solo buscamos por esa fecha
+            if (String.IsNullOrEmpty(vm.UnDosTres_fechaModificacion_desde) && !String.IsNullOrEmpty(vm.UnDosTres_fechaModificacion_hasta))
+            {
+                resultados = resultados.Where(d => d.fechaModificacion <= fechaModFin);
+            }
+
+            return resultados.ToList();
+
+        }
+
+
+        //Función que comprueba si hay asociación entre un material UnDosTres y Materiales_Nodos
+        public static Boolean ComprobarAsociacion(int idMaterial)
+        {
+            Boolean existe;
+            using (OLI_2016Entities ctx = new OLI_2016Entities())
+            {
+                IQueryable<Material_Nodo> consulta = ctx.Materiales_Nodos.Where(a => a.idMaterial == idMaterial);
+                if (consulta.Count() > 0)
+                {
+                    existe = true;
+                }
+                else
+                {
+                    existe = false;
+                }
+                return existe;
+            }
+        }
+
+
+        //Método, el cual no elimina fisicamente de BBDD, si no que lo que hacemos es cambiar el valor de activo a 0.
+        public static void DesactivarMaterial(int idMaterial)
+        {
+            using (OLI_2016Entities ctx = new OLI_2016Entities())
+            {
+                Material material = ctx.Materiales.FirstOrDefault(m => m.idMaterial == idMaterial);
+                material.activo = false;
+                ctx.SaveChanges();
+            }
+
+        }
+
+
+        public static void EliminarMaterialNodo(int idMaterial)
+        {
+            using (OLI_2016Entities ctx = new OLI_2016Entities())
+            {
+                Material_Nodo materialnodo = ctx.Materiales_Nodos.FirstOrDefault(m => m.idMaterial == idMaterial);
+                ctx.Materiales_Nodos.Remove(materialnodo);
+                ctx.SaveChanges();
+            }
+        }
+
+        //Función que devuelve un material a partir de su id.
+        public static Material Find(int id)
+        {
+            var ctx = new OLI_2016Entities();
+            Material material = ctx.Materiales
+                .Include("NivelEscolar")
+                .Include("Usuario")
+                .Include("UsuarioMod")
+                .SingleOrDefault(m => m.idMaterial == id);
+            ctx.Dispose();
+
+            return material;
+        }
+
+        //Comprueba si existe un nombre en la tabla Materiales, devolviendo True/False.
+        public static bool ExisteConNombre(string nombre)
+        {
+            using (var ctx = new OLI_2016Entities())
+            {
+                return ctx.Materiales.Where(p => p.nombre == nombre).Count() > 0;
+            }
+        }
+
+
+        public static List<Material> BuscarMaterial(VmMaterialesList vm, int? idSeleccionado)
+        {
+            OLI_2016Entities ctx = new OLI_2016Entities();
+            List<int> materiales_asociados = new List<int>();
+
+            IQueryable<Material> resultados = ctx.Materiales.Where(e => e.Estado == Enums.Estado.Completado);
+            var fechaInicio = Convert.ToDateTime(vm.Materiales_fechaCreacion_desde);
+            var fechaFin = Convert.ToDateTime(vm.Materiales_fechaCreacion_hasta);
+            var fechaModInicio = Convert.ToDateTime(vm.Materiales_fechaModificacion_desde);
+            var fechaModFin = Convert.ToDateTime(vm.Materiales_fechaModificacion_hasta);
+
+            if (vm.nombre != null)
+            {
+                resultados = resultados.Where(p => p.nombre.ToUpper().Contains(vm.nombre.ToUpper()));
+            }
+
+            if (vm.descripcion != null)
+            {
+                resultados = resultados.Where(p => p.descripcion.ToUpper().Contains(vm.descripcion.ToUpper()));
+            }
+
+            if (vm.idNivelEscolar != null)
+            {
+                resultados = resultados.Where(p => p.idNivelEscolar == vm.idNivelEscolar);
+            }
+
+            if (vm.u_id != null)
+            {
+                resultados = resultados.Where(p => p.u_id == vm.u_id);
+            }
+
+            if (vm.u_id_mod != null)
+            {
+                resultados = resultados.Where(p => p.u_id_mod == vm.u_id_mod);
+            }
+
+            //Si tenemos llena la fecha de creacion inicio, buscamos solo por esa fecha
+            if (!String.IsNullOrEmpty(vm.Materiales_fechaCreacion_desde) && String.IsNullOrEmpty(vm.Materiales_fechaCreacion_hasta))
+            {
+                resultados = resultados.Where(d => d.fechaCreacion >= fechaInicio);
+            }
+            //Si tenemos llena la fecha de creacion fin, buscamos solo por esa fecha
+            if (String.IsNullOrEmpty(vm.Materiales_fechaCreacion_desde) && !String.IsNullOrEmpty(vm.Materiales_fechaCreacion_hasta))
+            {
+                resultados = resultados.Where(d => d.fechaCreacion <= fechaFin);
+            }
+            //Si tenemos las dos fechas de creación,filtramos por ese rango de fechas introducido.
+            if (!String.IsNullOrEmpty(vm.Materiales_fechaCreacion_desde) && !String.IsNullOrEmpty(vm.Materiales_fechaCreacion_hasta))
+            {
+                resultados = resultados.Where(d => d.fechaCreacion >= fechaInicio && d.fechaCreacion <= fechaFin);
+            }
+
+            //Si tenemos dos fechas de modificacion, filtramos por ese rango de fechas introducido.
+            if (!String.IsNullOrEmpty(vm.Materiales_fechaModificacion_desde) && !String.IsNullOrEmpty(vm.Materiales_fechaModificacion_hasta))
+            {
+                resultados = resultados.Where(d => d.fechaModificacion >= fechaModInicio && d.fechaModificacion <= fechaModFin);
+            }
+
+            //Si tenemos llena la fecha de modificacion inicio, solo buscamos por esa fecha
+            if (!String.IsNullOrEmpty(vm.Materiales_fechaModificacion_desde) && String.IsNullOrEmpty(vm.Materiales_fechaModificacion_hasta))
+            {
+                resultados = resultados.Where(d => d.fechaModificacion >= fechaModInicio);
+            }
+            //Si tenemos llena la fecha de modificacion fin, solo buscamos por esa fecha
+            if (String.IsNullOrEmpty(vm.Materiales_fechaModificacion_desde) && !String.IsNullOrEmpty(vm.Materiales_fechaModificacion_hasta))
+            {
+                resultados = resultados.Where(d => d.fechaModificacion <= fechaModFin);
+            }
+
+            
+            if (vm.tipoMaterial != null)
+            {
+                resultados = resultados.Where(d => d.TipoMaterial == vm.tipoMaterial);
+            }
+
+            materiales_asociados = ctx.Materiales_Nodos.Where(m => m.idNodo == idSeleccionado).Select(m => m.idMaterial).ToList();
+           
+            if (materiales_asociados.Count!=0)
+            {
+                foreach (var mat in materiales_asociados)
+                {
+                    resultados = resultados.Except(resultados.Where(m => m.idMaterial == mat));
+                }
+            }
+           
+               
+            vm.resultadosTotales = resultados.Count();
+
+            return resultados.ToList();
+
+        }
+
+
+        //Método que devuelve la categoría de un material, a partir de su id y el tipo de material.
+        public static string ObtenerCategoria(int? idMaterial, Enums.TipoMaterial? tipoMaterial)
+        {
+            OLI_2016Entities ctx = new OLI_2016Entities();
+            switch (tipoMaterial.ToString())
+            {
+                case "Prueba":
+                    Prueba_Pregunta pb = new Prueba_Pregunta();
+                    pb = ctx.Pruebas_Preguntas.FirstOrDefault(c => c.idPrueba == idMaterial);
+                    Pregunta pregunta = ctx.Preguntas.FirstOrDefault(c => c.idPregunta == pb.idPregunta);
+                    Categoria categoria_pru = new Categoria();
+                    categoria_pru = ctx.Categorias.FirstOrDefault(c => c.idCategoria == pregunta.idCategoria);
+                    return categoria_pru.descripcion;
+                case "Herramienta":
+                    Herramienta herramienta = new Herramienta();
+                    herramienta = ctx.Materiales.OfType<Herramienta>().FirstOrDefault(c => c.idMaterial == idMaterial);
+                    Categoria categoria_h = new Categoria();
+                    categoria_h = ctx.Categorias.Find(herramienta.idCategoria);
+                    return categoria_h.descripcion;
+                case "Presentacion":
+                    Presentacion presentacion = new Presentacion();
+                    presentacion = ctx.Materiales.OfType<Presentacion>().FirstOrDefault(c => c.idMaterial == idMaterial);
+                    Categoria categoria_p = new Categoria();
+                    categoria_p = ctx.Categorias.Find(presentacion.idCategoria);
+                    return categoria_p.descripcion;
+                case "UnDosTres":
+                    UnDosTres undostres = new UnDosTres();
+                    undostres = ctx.Materiales.OfType<UnDosTres>().FirstOrDefault(c => c.idMaterial == idMaterial);
+                    Categoria categoria_u = new Categoria();
+                    categoria_u = ctx.Categorias.Find(undostres.idCategoria);
+                    return categoria_u.descripcion;
+                default:
+                    throw new NotImplementedException();
+
+            }
+
+
+        }
+
+        //Método para insertar Materiale_nodos
+        public static void InsertarMaterialesNodos(int[] idmateriales_chequeados, int iNodoSeleccionado)
+        {
+            List<int> lista = idmateriales_chequeados.ToList();
+            OLI_2016Entities ctx = new OLI_2016Entities();
+
+
+            int orden_max = 0;
+            if ((ctx.Materiales_Nodos.FirstOrDefault(m => m.idNodo == iNodoSeleccionado)) != null)
+            {
+                orden_max = ctx.Materiales_Nodos.Where(m => m.idNodo == iNodoSeleccionado).Max(m => m.orden);
+            }
+
+            int contador_orden = 0;
+
+            if (orden_max != 0)
+            {
+                contador_orden = orden_max;
+            }
+
+            foreach (var datos in lista)
+            {
+                Material_Nodo materialnodo = new Material_Nodo();
+                contador_orden++;
+                materialnodo.idMaterial = datos;
+                materialnodo.idNodo = iNodoSeleccionado;
+                materialnodo.orden = contador_orden;
+                ctx.Materiales_Nodos.Add(materialnodo);
+                ctx.SaveChanges();
+            }
+
+
+        }
+
+
+
+        public static Resultado ResultadosMaterial(int idPrueba)
+        {
+            OLI_2016Entities bd = new OLI_2016Entities();
+
+            return bd.Resultados.Where(r => r.idEMaterial == idPrueba).Single();
+
+        }
+
+        public static List<Material_Nodo> ObtenerMaterialesNodo(int idNodoPadre)
+        {
+            using (var contexto = new OLI_2016Entities())
+            {
+                return contexto.Materiales_Nodos.AsNoTracking()
+                    .Where(nodo => nodo.idNodo == idNodoPadre)
+                    .OrderBy(nodo => nodo.orden)
+                    .ToList();
+            }
+        }
+        //Método para obtener el nombre de Material
+        public static string ObtenerNombreMaterial(int idMaterial)
+        {
+            using (var contexto = new OLI_2016Entities())
+            {
+                return contexto.Materiales.AsNoTracking()
+                    .Where(m => m.idMaterial == idMaterial)
+                    .Select(m => m.nombre)
+                    .Single().ToString();
+            }
+        }
+
+
+
+    }
+}

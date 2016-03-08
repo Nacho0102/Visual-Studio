@@ -1,0 +1,64 @@
+@model OLI2016MVC.Models.ViewModel.VmMateriales
+
+
+@{
+    ViewBag.Title = "Alta Materiales";
+}
+
+
+
+@using (Html.BeginForm("Create", "Materiales", FormMethod.Post, new { enctype = "multipart/form-data", id = "formCreacionModificacion", @class = "form-horizontal formOverflow" }))
+{
+
+    <h2 style="text-align:center">ALTA DE MATERIALES</h2>
+
+
+    @Html.HiddenFor(m => m.idMaterial)
+
+    
+        <span class="input input_desing">
+            @Html.TextBoxFor(m => m.nombreMaterial, new
+       {
+           data_msg_required = "Campo vacío",
+           data_rule_required = "true",
+           @class = "form-control input-field campo_input form_control_desing",
+           type = "text"
+       })
+            @Html.ValidationMessageFor(m => m.nombreMaterial, String.Empty, new { @style = "color:red;margin:10px;" })
+
+            <label class="input-label desing_label" for="nombreArchivo">
+                <span class="input-label-content desing_label_content">@Html.DisplayNameFor(m => m.nombreMaterial)</span>
+            </label>
+
+        </span>
+   
+
+    @*Campo Nivel escolar*@
+
+    @Html.LabelFor(m => m.idNivelEscolar, "Nivel escolar: ")
+    @Html.DropDownListFor(m => m.idNivelEscolar, new SelectList(Model.listaNivelEscolar, "idNivelEscolar", "nombre"), "Selecciona", new { @required = "required" })
+    @Html.ValidationMessageFor(m => m.idNivelEscolar, String.Empty, new { @style = "color:red" })
+    <br />
+
+    
+        <span class="input input_desing">
+            @Html.TextBoxFor(m => m.enunciado, new
+       {
+           data_msg_required = "Campo vacío",
+           data_rule_required = "true",
+           @class = "form-control input-field campo_input form_control_desing",
+           type = "text"
+       })
+
+            <label class="input-label desing_label" for="descripcion">
+                <span class="input-label-content desing_label_content">@Html.DisplayNameFor(m => m.enunciado)</span>
+            </label>
+        </span>
+}
+
+
+
+
+
+
+

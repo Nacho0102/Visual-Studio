@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using OLI2016MVC.Models.ViewModel;
+using OLI2016MVC.Models;
+using OLI2016MVC.Models.DataAccess;
+using PagedList;
+
+
+namespace OLI2016MVC.Controllers
+{
+    public class MaterialesController : BaseController
+    {
+        // GET: Materiales
+        public ActionResult List()
+        {
+            VmMaterialesList vm = new VmMaterialesList();
+            return View(vm);
+        }
+       
+
+
+    [HttpGet]
+    [ActionName("Details")]
+    public ActionResult Details(int idMaterial)
+    {
+        Material materialBuscado = Materiales.RecuperarMaterial(idMaterial);
+        return PartialView("_DetailsMateriales", materialBuscado);
+    }
+
+    [HttpGet]
+    public ActionResult _TablaMaterialesList(VmMaterialesList vm)
+    {
+
+        if (ModelState.IsValid)
+        {
+            int resultsOnPage = (vm.pageSize /*?? 5*/);
+            int resultsPage = (int)(vm.page /*?? 1*/);
+            vm.listaMateriales = Materiales.BuscarMaterial(vm).ToPagedList(resultsPage, resultsOnPage);
+            foreach (Material material in vm.listaMateriales)
+            {
+                vm.listaCategorias.Add(Materiales.ObtenerCategoria(material.idMaterial, material.TipoMaterial));
+
+            }
+            
+            vm.numResultadosPagina = vm.listaMateriales.Count();
+            return View(vm);
+        }
+        else
+        {
+            return View(vm);
+        }
+    }
+
+}
+}
